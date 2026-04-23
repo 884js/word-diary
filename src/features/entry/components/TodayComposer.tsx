@@ -74,7 +74,7 @@ export function TodayComposer() {
           onChangeText={setDraft}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={todayEntry ? '' : '例: 新歓夜景撮影会'}
+          placeholder={todayEntry ? '' : '例: コーヒー'}
           placeholderTextColor={colors.ink.subtle}
           style={styles.input}
           returnKeyType="done"
