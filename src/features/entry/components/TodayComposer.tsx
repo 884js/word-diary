@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -16,6 +16,31 @@ import { spacing } from '@/theme/tokens';
 import { useTodayEntry, useUpsertEntry } from '../hooks/useEntries';
 
 /**
+ * プレースホルダー例として使う「その日を象徴するひと言」候補。
+ * 起動ごとにランダムで1つ選ばれる。
+ */
+const PLACEHOLDER_SAMPLES = [
+  '映画',
+  '花見',
+  '夜景',
+  '引っ越し',
+  '再会',
+  'お祭り',
+  '大掃除',
+  '旅行',
+  'ライブ',
+  '温泉',
+  'カラオケ',
+  '誕生日',
+  '忘年会',
+  '模様替え',
+  'お泊り会',
+  '初授業',
+  '散歩',
+  'ラーメン',
+] as const;
+
+/**
  * 今日のひと言を入力するコンポーザ。
  * - 未記入: プロンプト表示 + 入力欄
  * - 記入済: そのまま編集可能な状態で表示
@@ -27,6 +52,15 @@ export function TodayComposer() {
 
   const [draft, setDraft] = useState(todayEntry?.word ?? '');
   const [focused, setFocused] = useState(false);
+
+  // 起動ごとに1つだけ選ばれるプレースホルダー例
+  const placeholderSample = useMemo(
+    () =>
+      PLACEHOLDER_SAMPLES[
+        Math.floor(Math.random() * PLACEHOLDER_SAMPLES.length)
+      ],
+    [],
+  );
 
   // 同期: 取得結果が変わったらドラフトを最新化（ただし編集中は尊重）
   const lastServerWord = useRef<string | undefined>(undefined);
@@ -74,7 +108,7 @@ export function TodayComposer() {
           onChangeText={setDraft}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={todayEntry ? '' : '例: コーヒー'}
+          placeholder={todayEntry ? '' : `例: ${placeholderSample}`}
           placeholderTextColor={colors.ink.subtle}
           style={styles.input}
           returnKeyType="done"
