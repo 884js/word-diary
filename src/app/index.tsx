@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { EntryModal } from '@/features/entry/components/EntryModal';
 import { StackedList } from '@/features/entry/components/StackedList';
 import { TodayComposer } from '@/features/entry/components/TodayComposer';
 import { colors } from '@/theme/colors';
@@ -17,15 +17,19 @@ export default function Home() {
         { paddingTop: insets.top, paddingBottom: insets.bottom },
       ]}
     >
-      <ScrollView
+      <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        bottomOffset={24}
       >
         <TodayComposer />
-        <StackedList onPressEmptyDate={setEditingDate} />
-      </ScrollView>
-      <EntryModal date={editingDate} onClose={() => setEditingDate(null)} />
+        <StackedList
+          editingDate={editingDate}
+          onStartEdit={setEditingDate}
+          onEndEdit={() => setEditingDate(null)}
+        />
+      </KeyboardAwareScrollView>
     </View>
   );
 }

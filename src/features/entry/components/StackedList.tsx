@@ -14,6 +14,7 @@ import { spacing } from '@/theme/tokens';
 import { useEntries } from '../hooks/useEntries';
 import { EmptyEntryRow } from './EmptyEntryRow';
 import { EntryRow } from './EntryRow';
+import { InlineEntryEditor } from './InlineEntryEditor';
 import { SectionDivider } from './SectionDivider';
 
 type Item =
@@ -23,7 +24,9 @@ type Item =
   | { kind: 'divider-month'; key: string; label: string };
 
 type Props = {
-  onPressEmptyDate: (date: string) => void;
+  editingDate: string | null;
+  onStartEdit: (date: string) => void;
+  onEndEdit: () => void;
 };
 
 /**
@@ -105,7 +108,7 @@ function buildItems(entries: Entry[]): Item[] {
   return items;
 }
 
-export function StackedList({ onPressEmptyDate }: Props) {
+export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   const { data, isLoading } = useEntries();
 
   const items = useMemo(() => buildItems(data ?? []), [data]);
@@ -155,11 +158,20 @@ export function StackedList({ onPressEmptyDate }: Props) {
             />
           );
         }
+        if (editingDate === item.date) {
+          return (
+            <InlineEntryEditor
+              key={`editor-${item.date}`}
+              date={item.date}
+              onComplete={onEndEdit}
+            />
+          );
+        }
         return (
           <EmptyEntryRow
             key={`empty-${item.date}`}
             date={item.date}
-            onPress={() => onPressEmptyDate(item.date)}
+            onPress={() => onStartEdit(item.date)}
           />
         );
       })}
