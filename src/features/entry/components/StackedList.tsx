@@ -1,85 +1,114 @@
 import { useMemo } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import type { Entry } from '@/lib/database/schema';
 import {
+  enumerateDates,
   monthLabel,
   monthOf,
   todayKey,
-  yearLabel,
+  yearMonthLabel,
   yearOf,
 } from '@/lib/dateUtils';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/tokens';
-import { useDeleteEntry, useEntries } from '../hooks/useEntries';
+import { useEntries } from '../hooks/useEntries';
+import { EmptyEntryRow } from './EmptyEntryRow';
 import { EntryRow } from './EntryRow';
 import { SectionDivider } from './SectionDivider';
 
 type Item =
   | { kind: 'entry'; entry: Entry }
-  | { kind: 'month'; key: string; label: string }
-  | { kind: 'year'; key: string; label: string };
+  | { kind: 'empty'; date: string }
+  | { kind: 'divider-year'; key: string; label: string; count: number }
+  | { kind: 'divider-month'; key: string; label: string };
+
+type Props = {
+  onPressEmptyDate: (date: string) => void;
+};
 
 /**
- * エントリを「年 > 月 > エントリ」の順に並べ、
- * 区切りアイテムを挿入したフラットなリストを返す。
- * （年が変わるごとに年区切り、月が変わるごとに月区切り）
- * 今日を含む月・年の区切りは出さない（TodayComposerが兼ねる）。
+ * 最古のエントリ日〜昨日までの全日を新しい順に並べ、
+ * 月/年の境界に区切りアイテムを挿入する。
+ *
+ * ルール:
+ * - 今日の行は表示しない（TodayComposerが兼ねる）
+ * - 年が変わる境界は "YYYY年 M月" の年ラベル（月ラベルは出さない）
+ * - 同じ年で月だけ変わる境界は "M月" の月ラベル
+ * - 最新ブロック（今日と同じ年・同じ月の領域）にはラベルを出さない
  */
 function buildItems(entries: Entry[]): Item[] {
   const today = todayKey();
-  const currentMonth = monthOf(today);
+  if (entries.length === 0) return [];
+
+  const earliestDate = entries[entries.length - 1].date;
+  // 昇順で全日を列挙して、新しい順に並べ替え
+  const allDates = enumerateDates(earliestDate, today).reverse();
+
+  const entryByDate = new Map(entries.map((e) => [e.date, e] as const));
+
+  // 年ごとの記録数
+  const countByYear = new Map<string, number>();
+  for (const e of entries) {
+    const y = yearOf(e.date);
+    countByYear.set(y, (countByYear.get(y) ?? 0) + 1);
+  }
+
   const currentYear = yearOf(today);
+  const currentMonth = monthOf(today);
 
   const items: Item[] = [];
-  let lastMonth: string | null = null;
   let lastYear: string | null = null;
+  let lastMonth: string | null = null;
 
-  for (const entry of entries) {
-    const y = yearOf(entry.date);
-    const m = monthOf(entry.date);
+  for (const date of allDates) {
+    if (date === today) continue;
+
+    const y = yearOf(date);
+    const m = monthOf(date);
 
     if (y !== lastYear) {
-      // 今年の最初のブロックには年区切りは出さない
-      if (lastYear !== null || y !== currentYear) {
-        items.push({ kind: 'year', key: `year-${y}`, label: yearLabel(y) });
+      if (y !== currentYear) {
+        // 過去の年に入った → 年ラベル（月も含める）
+        items.push({
+          kind: 'divider-year',
+          key: `year-${y}`,
+          label: yearMonthLabel(m),
+          count: countByYear.get(y) ?? 0,
+        });
+      } else if (m !== currentMonth) {
+        // 今年内だが今月と違う → 月ラベル
+        items.push({
+          kind: 'divider-month',
+          key: `month-${m}`,
+          label: monthLabel(m),
+        });
       }
       lastYear = y;
-    }
-    if (m !== lastMonth) {
-      // 今月の最初のブロックには月区切りは出さない
-      if (lastMonth !== null || m !== currentMonth) {
-        items.push({ kind: 'month', key: `month-${m}`, label: monthLabel(m) });
-      }
+      lastMonth = m;
+    } else if (m !== lastMonth) {
+      items.push({
+        kind: 'divider-month',
+        key: `month-${m}`,
+        label: monthLabel(m),
+      });
       lastMonth = m;
     }
 
-    items.push({ kind: 'entry', entry });
+    const entry = entryByDate.get(date);
+    if (entry) {
+      items.push({ kind: 'entry', entry });
+    } else {
+      items.push({ kind: 'empty', date });
+    }
   }
 
   return items;
 }
 
-export function StackedList() {
+export function StackedList({ onPressEmptyDate }: Props) {
   const { data, isLoading } = useEntries();
-  const deleteMutation = useDeleteEntry();
 
   const items = useMemo(() => buildItems(data ?? []), [data]);
-
-  const handleLongPress = (entry: Entry) => {
-    Alert.alert(
-      '削除しますか？',
-      `${entry.date}  ${entry.word}`,
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '削除',
-          style: 'destructive',
-          onPress: () => deleteMutation.mutate(entry.date),
-        },
-      ],
-      { cancelable: true },
-    );
-  };
 
   if (isLoading) {
     return (
@@ -92,7 +121,6 @@ export function StackedList() {
   if (items.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyTitle}>まだ何も書かれていません</Text>
         <Text style={styles.emptyBody}>
           上の欄に今日のひと言を記録すると、{'\n'}ここに積み上がっていきます。
         </Text>
@@ -102,24 +130,36 @@ export function StackedList() {
 
   return (
     <View style={styles.list}>
-      <SectionDivider label="積み上げ" variant="section" />
       {items.map((item) => {
-        if (item.kind === 'year') {
+        if (item.kind === 'divider-year') {
           return (
-            <SectionDivider key={item.key} label={item.label} variant="year" />
+            <SectionDivider
+              key={item.key}
+              label={item.label}
+              subLabel={`書いた日数 ${item.count}日`}
+              variant="year"
+            />
           );
         }
-        if (item.kind === 'month') {
+        if (item.kind === 'divider-month') {
           return (
             <SectionDivider key={item.key} label={item.label} variant="month" />
           );
         }
+        if (item.kind === 'entry') {
+          return (
+            <EntryRow
+              key={item.entry.id}
+              date={item.entry.date}
+              word={item.entry.word}
+            />
+          );
+        }
         return (
-          <EntryRow
-            key={item.entry.id}
-            date={item.entry.date}
-            word={item.entry.word}
-            onLongPress={() => handleLongPress(item.entry)}
+          <EmptyEntryRow
+            key={`empty-${item.date}`}
+            date={item.date}
+            onPress={() => onPressEmptyDate(item.date)}
           />
         );
       })}
@@ -139,12 +179,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing['3xl'],
     alignItems: 'center',
-  },
-  emptyTitle: {
-    fontFamily: 'NotoSerifJPMedium',
-    fontSize: 15,
-    color: colors.ink.secondary,
-    marginBottom: spacing.sm,
   },
   emptyBody: {
     fontFamily: 'NotoSerifJP',

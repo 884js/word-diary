@@ -1,4 +1,4 @@
-import { format, getDay, parseISO } from 'date-fns';
+import { eachDayOfInterval, format, getDay, parseISO } from 'date-fns';
 
 /**
  * ローカル日付をYYYY-MM-DD形式に。
@@ -66,4 +66,24 @@ export function monthLabel(monthKey: string): string {
 }
 export function yearLabel(yearKey: string): string {
   return `${yearKey}年`;
+}
+
+/**
+ * 年またぎ用の結合ラベル: "2024年 12月"
+ */
+export function yearMonthLabel(monthKey: string): string {
+  const [y, m] = monthKey.split('-');
+  return `${y}年 ${Number(m)}月`;
+}
+
+/**
+ * fromKey から toKey までの全日付キーを昇順で返す（両端含む）。
+ */
+export function enumerateDates(fromKey: string, toKey: string): string[] {
+  if (fromKey > toKey) return [];
+  const days = eachDayOfInterval({
+    start: parseISO(fromKey),
+    end: parseISO(toKey),
+  });
+  return days.map((d) => toDateKey(d));
 }

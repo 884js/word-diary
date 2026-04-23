@@ -5,25 +5,21 @@ import { spacing } from '@/theme/tokens';
 
 type Props = {
   label: string;
-  variant?: 'month' | 'year' | 'section';
+  /** 年ラベルの下に添える小さなサブラベル（例: "書いた日数 23日"） */
+  subLabel?: string;
+  variant?: 'month' | 'year';
 };
 
-function SectionDividerInner({ label, variant = 'month' }: Props) {
+function SectionDividerInner({ label, subLabel, variant = 'month' }: Props) {
   const isYear = variant === 'year';
-  const isSection = variant === 'section';
   return (
     <View style={[styles.wrapper, isYear && styles.wrapperYear]}>
-      <View style={styles.line} />
-      <Text
-        style={[
-          styles.label,
-          isYear && styles.labelYear,
-          isSection && styles.labelSection,
-        ]}
-      >
-        {label}
-      </Text>
-      <View style={styles.line} />
+      <View style={styles.row}>
+        <View style={styles.line} />
+        <Text style={[styles.label, isYear && styles.labelYear]}>{label}</Text>
+        <View style={styles.line} />
+      </View>
+      {subLabel ? <Text style={styles.subLabel}>{subLabel}</Text> : null}
     </View>
   );
 }
@@ -32,15 +28,17 @@ export const SectionDivider = memo(SectionDividerInner);
 
 const styles = StyleSheet.create({
   wrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.lg,
-    gap: spacing.md,
   },
   wrapperYear: {
-    paddingTop: spacing['2xl'],
+    paddingTop: spacing['3xl'],
     paddingBottom: spacing.lg,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
   },
   line: {
     flex: 1,
@@ -58,8 +56,12 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     color: colors.ink.secondary,
   },
-  labelSection: {
+  subLabel: {
+    marginTop: spacing.xs,
+    textAlign: 'center',
+    fontFamily: 'NotoSerifJP',
     fontSize: 11,
-    letterSpacing: 4,
+    letterSpacing: 1.5,
+    color: colors.ink.muted,
   },
 });

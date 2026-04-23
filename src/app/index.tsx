@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EntryModal } from '@/features/entry/components/EntryModal';
 import { StackedList } from '@/features/entry/components/StackedList';
 import { TodayComposer } from '@/features/entry/components/TodayComposer';
 import { colors } from '@/theme/colors';
 
 export default function Home() {
   const insets = useSafeAreaInsets();
+  const [editingDate, setEditingDate] = useState<string | null>(null);
+
   return (
     <View
       style={[
@@ -19,8 +23,9 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
       >
         <TodayComposer />
-        <StackedList />
+        <StackedList onPressEmptyDate={setEditingDate} />
       </ScrollView>
+      <EntryModal date={editingDate} onClose={() => setEditingDate(null)} />
     </View>
   );
 }

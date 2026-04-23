@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/tokens';
@@ -7,9 +7,6 @@ import { spacing } from '@/theme/tokens';
 type Props = {
   date: string;
   word: string;
-  highlight?: boolean;
-  onPress?: () => void;
-  onLongPress?: () => void;
 };
 
 function weekdayColor(kind: WeekdayKind): string {
@@ -18,26 +15,17 @@ function weekdayColor(kind: WeekdayKind): string {
   return colors.ink.muted;
 }
 
-function EntryRowInner({ date, word, highlight, onPress, onLongPress }: Props) {
+function EntryRowInner({ date, word }: Props) {
   const kind = weekdayKind(date);
   return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      android_ripple={{ color: colors.paper.sunken }}
-      style={({ pressed }) => [
-        styles.row,
-        pressed && styles.rowPressed,
-        highlight && styles.rowHighlight,
-      ]}
-    >
+    <View style={styles.row}>
       <Text style={[styles.date, { color: weekdayColor(kind) }]}>
         {shortDate(date)}
       </Text>
       <Text style={styles.word} numberOfLines={1}>
         {word}
       </Text>
-    </Pressable>
+    </View>
   );
 }
 
@@ -49,12 +37,6 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
-  },
-  rowPressed: {
-    backgroundColor: colors.paper.deep,
-  },
-  rowHighlight: {
-    backgroundColor: colors.accent.blueSoft,
   },
   date: {
     width: 56,
