@@ -1,0 +1,148 @@
+import * as Haptics from 'expo-haptics';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Animated,
+  Easing,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { longDate, todayKey } from '@/lib/dateUtils';
+import { colors } from '@/theme/colors';
+import { spacing } from '@/theme/tokens';
+import { useTodayEntry, useUpsertEntry } from '../hooks/useEntries';
+
+/**
+ * 今日のひと言を入力するコンポーザ。
+ * - 未記入: プロンプト表示 + 入力欄
+ * - 記入済: そのまま編集可能な状態で表示
+ */
+export function TodayComposer() {
+  const today = todayKey();
+  const { data: todayEntry } = useTodayEntry();
+  const upsert = useUpsertEntry();
+
+  const [draft, setDraft] = useState(todayEntry?.word ?? '');
+  const [focused, setFocused] = useState(false);
+
+  // 同期: 取得結果が変わったらドラフトを最新化（ただし編集中は尊重）
+  const lastServerWord = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    const w = todayEntry?.word ?? '';
+    if (w !== lastServerWord.current) {
+      setDraft(w);
+      lastServerWord.current = w;
+    }
+  }, [todayEntry?.word]);
+
+  // 記録ボタンの出現アニメーション（opacityのみ）
+  const buttonOpacity = useRef(new Animated.Value(0)).current;
+  const showButton = draft.trim().length > 0;
+  useEffect(() => {
+    Animated.timing(buttonOpacity, {
+      toValue: showButton ? 1 : 0,
+      duration: 160,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  }, [showButton, buttonOpacity]);
+
+  const handleSubmit = async () => {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    await upsert.mutateAsync({ date: today, word: trimmed });
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  };
+
+  const isSaved = todayEntry != null && todayEntry.word === draft.trim();
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.date}>{longDate(today)}</Text>
+      <Text style={styles.prompt}>
+        {todayEntry ? '今日のひと言。' : '今日を、ひと言で。'}
+      </Text>
+
+      <View style={[styles.inputRow, focused && styles.inputRowFocused]}>
+        <TextInput
+          value={draft}
+          onChangeText={setDraft}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={todayEntry ? '' : '例: 新歓夜景撮影会'}
+          placeholderTextColor={colors.ink.subtle}
+          style={styles.input}
+          returnKeyType="done"
+          onSubmitEditing={handleSubmit}
+          maxLength={80}
+          autoCorrect={false}
+        />
+      </View>
+
+      <Animated.View
+        style={[styles.actionRow, { opacity: buttonOpacity }]}
+        pointerEvents={showButton ? 'auto' : 'none'}
+      >
+        <Pressable onPress={handleSubmit} disabled={upsert.isPending}>
+          <Text style={styles.action}>
+            {isSaved ? '保存済み' : todayEntry ? '書き直す' : '記録する'}
+          </Text>
+        </Pressable>
+      </Animated.View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing['2xl'],
+    paddingBottom: spacing.lg,
+  },
+  date: {
+    fontFamily: 'NotoSerifJPMedium',
+    fontSize: 26,
+    color: colors.ink.primary,
+    letterSpacing: 0.5,
+  },
+  prompt: {
+    marginTop: spacing.xs,
+    fontFamily: 'NotoSerifJP',
+    fontSize: 14,
+    color: colors.ink.muted,
+  },
+  inputRow: {
+    marginTop: spacing.xl,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth * 2,
+    borderBottomColor: colors.ink.subtle,
+  },
+  inputRowFocused: {
+    borderBottomColor: colors.accent.blue,
+  },
+  input: {
+    fontFamily: 'NotoSerifJP',
+    fontSize: 20,
+    color: colors.ink.primary,
+    paddingVertical: spacing.xs,
+    // Android: 余計な下線やpaddingを除去
+    padding: 0,
+  },
+  actionRow: {
+    marginTop: spacing.md,
+    alignItems: 'flex-end',
+    minHeight: 24,
+  },
+  action: {
+    fontFamily: 'NotoSerifJPMedium',
+    fontSize: 15,
+    color: colors.accent.blue,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+});

@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "単語日記",
+    "slug": "word-diary",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "worddiary",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.uki884.worddiary",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "ja",
+        "CFBundleLocalizations": ["ja"],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.uki884.worddiary"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FAF8F3",
+          "resizeMode": "contain"
+        }
+      ],
+      "expo-dev-client",
+      "react-native-edge-to-edge",
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.5"
+          }
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true,
+      "reactCompiler": true
+    }
+  }
+}
