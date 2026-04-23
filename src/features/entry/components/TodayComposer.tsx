@@ -108,7 +108,7 @@ export function TodayComposer() {
           onChangeText={setDraft}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={todayEntry ? '' : `例: ${placeholderSample}`}
+          placeholder={todayEntry ? '' : placeholderSample}
           placeholderTextColor={colors.ink.subtle}
           style={styles.input}
           returnKeyType="done"
