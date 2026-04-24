@@ -115,7 +115,7 @@ export function TodayComposer() {
           style={[styles.input, { color: c.ink.primary }]}
           returnKeyType="done"
           onSubmitEditing={handleSubmit}
-          maxLength={80}
+          maxLength={30}
           autoCorrect={false}
         />
       </View>

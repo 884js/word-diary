@@ -112,7 +112,6 @@ function buildItems(entries: Entry[]): Item[] {
 
 export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   const c = useColors();
-  const today = todayKey();
   const { data, isLoading } = useEntries();
 
   const items = useMemo(() => buildItems(data ?? []), [data]);
@@ -170,13 +169,12 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
         }
 
         if (item.kind === 'entry') {
-          const isToday = item.entry.date === today;
           return (
             <EntryRow
               key={item.entry.id}
               date={item.entry.date}
               word={item.entry.word}
-              onPress={isToday ? () => onStartEdit(item.entry.date) : undefined}
+              onPress={() => onStartEdit(item.entry.date)}
             />
           );
         }

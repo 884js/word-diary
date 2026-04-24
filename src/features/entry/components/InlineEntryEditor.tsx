@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
@@ -34,17 +34,16 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
   const upsert = useUpsertEntry();
   const [draft, setDraft] = useState(initialValue ?? '');
 
-  // 最新のドラフトを参照するためのref（unmount時commitで使う）
-  const draftRef = useRef(initialValue ?? '');
-  draftRef.current = draft;
-
   // 多重コミット防止（blur → onComplete → unmount の流れで複数回呼ばれるのを防ぐ）
   const committedRef = useRef(false);
 
-  const commit = useCallback(() => {
+  // commit 関数は毎レンダーで最新クロージャに更新する。
+  // useEffect の cleanup を [] deps で unmount 時のみに限定するため、ref 経由で最新値を参照する。
+  const commitRef = useRef<() => void>(() => {});
+  commitRef.current = () => {
     if (committedRef.current) return;
     committedRef.current = true;
-    const trimmed = draftRef.current.trim();
+    const trimmed = draft.trim();
     if (trimmed.length === 0) return;
     // 既存の単語と同一なら書き込みしない（updatedAt を無駄に動かさない）
     if (trimmed === initialValue) return;
@@ -52,22 +51,23 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-  }, [date, initialValue, upsert]);
+  };
 
-  // unmount時に未確定の場合でも保存する
+  // unmount時に未確定の場合でも保存する。deps を [] にすることで
+  // レンダー毎の cleanup 実行を防ぐ（以前はタイピング中に誤発火していた）。
   useEffect(() => {
     return () => {
-      commit();
+      commitRef.current();
     };
-  }, [commit]);
+  }, []);
 
   const handleSubmit = () => {
-    commit();
+    commitRef.current();
     onComplete();
   };
 
   const handleBlur = () => {
-    commit();
+    commitRef.current();
     onComplete();
   };
 
@@ -87,7 +87,7 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
         placeholderTextColor={c.ink.subtle}
         style={[styles.input, { color: c.ink.primary }]}
         returnKeyType="done"
-        maxLength={80}
+        maxLength={30}
         autoFocus
         autoCorrect={false}
         selectTextOnFocus

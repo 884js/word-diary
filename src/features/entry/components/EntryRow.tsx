@@ -31,7 +31,7 @@ function EntryRowInner({ date, word, onPress }: Props) {
       <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
         {shortDate(date)}
       </Text>
-      <Text style={[styles.word, { color: c.ink.primary }]} numberOfLines={1}>
+      <Text style={[styles.word, { color: c.ink.primary }]} numberOfLines={2}>
         {word}
       </Text>
     </>
