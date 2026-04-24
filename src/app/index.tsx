@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DiaryHeader } from '@/features/entry/components/DiaryHeader';
 import { StackedList } from '@/features/entry/components/StackedList';
 import { TodayComposer } from '@/features/entry/components/TodayComposer';
 import { useColors } from '@/theme/ThemeContext';
@@ -28,6 +29,7 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
         bottomOffset={24}
       >
+        <DiaryHeader />
         <TodayComposer />
         <StackedList
           editingDate={editingDate}

@@ -1,6 +1,4 @@
-import { Settings as SettingsIcon } from '@tamagui/lucide-icons';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -12,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { longDate, todayKey } from '@/lib/dateUtils';
+import { todayKey } from '@/lib/dateUtils';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 import { useTodayEntry, useUpsertEntry } from '../hooks/useEntries';
@@ -44,17 +42,18 @@ const PLACEHOLDER_SAMPLES = [
 
 /**
  * 今日のひと言を入力するコンポーザ。
- * - 未記入: プロンプト表示 + 入力欄
- * - 記入済: そのまま編集可能な状態で表示
+ * - 未記入: プロンプト + 入力欄 + 記録ボタン
+ * - 記入済: 何も描画しない（一覧の最上段で表示・編集する）
+ *
+ * ヘッダー（日付・歯車）は DiaryHeader が担当するのでここには置かない。
  */
 export function TodayComposer() {
   const c = useColors();
-  const router = useRouter();
   const today = todayKey();
   const { data: todayEntry } = useTodayEntry();
   const upsert = useUpsertEntry();
 
-  const [draft, setDraft] = useState(todayEntry?.word ?? '');
+  const [draft, setDraft] = useState('');
   const [focused, setFocused] = useState(false);
 
   // 起動ごとに1つだけ選ばれるプレースホルダー例
@@ -65,16 +64,6 @@ export function TodayComposer() {
       ],
     [],
   );
-
-  // 同期: 取得結果が変わったらドラフトを最新化（ただし編集中は尊重）
-  const lastServerWord = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    const w = todayEntry?.word ?? '';
-    if (w !== lastServerWord.current) {
-      setDraft(w);
-      lastServerWord.current = w;
-    }
-  }, [todayEntry?.word]);
 
   // 記録ボタンの出現アニメーション（opacityのみ）
   const buttonOpacity = useRef(new Animated.Value(0)).current;
@@ -95,31 +84,18 @@ export function TodayComposer() {
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
+    // 保存後は todayEntry が入ってこのコンポーネントは null を返すので、
+    // UIは自然に閉じて一覧の最上段に今日の行が現れる
   };
 
-  const isSaved = todayEntry != null && todayEntry.word === draft.trim();
+  if (todayEntry) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={[styles.date, { color: c.ink.primary }]}>
-          {longDate(today)}
-        </Text>
-        <Pressable
-          onPress={() => router.push('/settings')}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="設定を開く"
-          style={({ pressed }) => [
-            styles.settingsButton,
-            pressed && { opacity: 0.5 },
-          ]}
-        >
-          <SettingsIcon size={20} color="$inkMuted" />
-        </Pressable>
-      </View>
       <Text style={[styles.prompt, { color: c.ink.muted }]}>
-        {todayEntry ? '今日のひと言。' : '今日を、ひと言で。'}
+        今日を、ひと言で。
       </Text>
 
       <View
@@ -134,7 +110,7 @@ export function TodayComposer() {
           onChangeText={setDraft}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={todayEntry ? '' : placeholderSample}
+          placeholder={placeholderSample}
           placeholderTextColor={c.ink.subtle}
           style={[styles.input, { color: c.ink.primary }]}
           returnKeyType="done"
@@ -150,7 +126,7 @@ export function TodayComposer() {
       >
         <Pressable onPress={handleSubmit} disabled={upsert.isPending}>
           <Text style={[styles.action, { color: c.accent.blue }]}>
-            {isSaved ? '保存済み' : todayEntry ? '書き直す' : '記録する'}
+            記録する
           </Text>
         </Pressable>
       </Animated.View>
@@ -161,29 +137,15 @@ export function TodayComposer() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing['2xl'],
+    paddingTop: spacing.md,
     paddingBottom: spacing.lg,
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  date: {
-    fontFamily: 'NotoSerifJPMedium',
-    fontSize: 26,
-    letterSpacing: 0.5,
-  },
-  settingsButton: {
-    padding: spacing.xs,
-  },
   prompt: {
-    marginTop: spacing.xs,
     fontFamily: 'NotoSerifJP',
     fontSize: 14,
   },
   inputRow: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth * 2,
   },

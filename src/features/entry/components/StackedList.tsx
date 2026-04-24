@@ -30,11 +30,12 @@ type Props = {
 };
 
 /**
- * 最古のエントリ日〜昨日までの全日を新しい順に並べ、
+ * 最古のエントリ日〜今日までの全日を新しい順に並べ、
  * 月/年の境界に区切りアイテムを挿入する。
  *
  * ルール:
- * - 今日の行は表示しない（TodayComposerが兼ねる）
+ * - 未記入の今日は表示しない（TodayComposer が担当）
+ * - 記入済みの今日は一覧の最上段に EntryRow として現れる（積み上げ感）
  * - 年が変わる境界は "YYYY年 M月" の年ラベル（月ラベルは出さない）
  * - 同じ年で月だけ変わる境界は "M月" の月ラベル
  * - 最新ブロック（今日と同じ年・同じ月の領域）にはラベルを出さない
@@ -64,7 +65,8 @@ function buildItems(entries: Entry[]): Item[] {
   let lastMonth: string | null = null;
 
   for (const date of allDates) {
-    if (date === today) continue;
+    // 未記入の今日だけは TodayComposer が兼ねるのでスキップ
+    if (date === today && !entryByDate.has(date)) continue;
 
     const y = yearOf(date);
     const m = monthOf(date);
@@ -110,6 +112,7 @@ function buildItems(entries: Entry[]): Item[] {
 
 export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   const c = useColors();
+  const today = todayKey();
   const { data, isLoading } = useEntries();
 
   const items = useMemo(() => buildItems(data ?? []), [data]);
@@ -150,24 +153,34 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
             <SectionDivider key={item.key} label={item.label} variant="month" />
           );
         }
+        // entry / empty は編集中かどうかで描画を切り替える
+        const itemDate = item.kind === 'entry' ? item.entry.date : item.date;
+        const existingWord =
+          item.kind === 'entry' ? item.entry.word : undefined;
+
+        if (editingDate === itemDate) {
+          return (
+            <InlineEntryEditor
+              key={`editor-${itemDate}`}
+              date={itemDate}
+              initialValue={existingWord}
+              onComplete={onEndEdit}
+            />
+          );
+        }
+
         if (item.kind === 'entry') {
+          const isToday = item.entry.date === today;
           return (
             <EntryRow
               key={item.entry.id}
               date={item.entry.date}
               word={item.entry.word}
+              onPress={isToday ? () => onStartEdit(item.entry.date) : undefined}
             />
           );
         }
-        if (editingDate === item.date) {
-          return (
-            <InlineEntryEditor
-              key={`editor-${item.date}`}
-              date={item.date}
-              onComplete={onEndEdit}
-            />
-          );
-        }
+
         return (
           <EmptyEntryRow
             key={`empty-${item.date}`}

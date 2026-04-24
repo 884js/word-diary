@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
@@ -8,6 +8,12 @@ import { spacing } from '@/theme/tokens';
 type Props = {
   date: string;
   word: string;
+  /**
+   * 行タップ時のハンドラ。
+   * 未指定なら読み取り専用の View として描画する（過去エントリの既定挙動）。
+   * 今日の行など、再編集を許す場合だけ渡す。
+   */
+  onPress?: () => void;
 };
 
 function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
@@ -16,18 +22,36 @@ function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
   return c.ink.muted;
 }
 
-function EntryRowInner({ date, word }: Props) {
+function EntryRowInner({ date, word, onPress }: Props) {
   const c = useColors();
   const kind = weekdayKind(date);
-  return (
-    <View style={styles.row}>
+
+  const content = (
+    <>
       <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
         {shortDate(date)}
       </Text>
       <Text style={[styles.word, { color: c.ink.primary }]} numberOfLines={1}>
         {word}
       </Text>
-    </View>
+    </>
+  );
+
+  if (!onPress) {
+    return <View style={styles.row}>{content}</View>;
+  }
+
+  return (
+    <Pressable
+      onPress={onPress}
+      android_ripple={{ color: c.paper.sunken }}
+      style={({ pressed }) => [
+        styles.row,
+        pressed && { backgroundColor: c.paper.deep },
+      ]}
+    >
+      {content}
+    </Pressable>
   );
 }
 
