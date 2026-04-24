@@ -2,7 +2,7 @@
   "expo": {
     "name": "一言日記",
     "slug": "word-diary",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "worddiary",
     "userInterfaceStyle": "automatic",
@@ -10,10 +10,13 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.uki884.worddiary",
+      "buildNumber": "2",
       "icon": "./assets/icon.png",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "ja",
-        "CFBundleLocalizations": ["ja"],
+        "CFBundleLocalizations": [
+          "ja"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -50,6 +53,13 @@
       "typedRoutes": true,
       "tsconfigPaths": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d2fd086c-7232-41d1-bee7-815da963b330"
+      }
+    },
+    "owner": "uki884"
   }
 }
