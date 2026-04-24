@@ -1,0 +1,58 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 uki884",
+    "version": "1.0",
+    "release": {
+      "automaticRelease": true
+    },
+    "categories": ["LIFESTYLE"],
+    "info": {
+      "en-US": {
+        "title": "一言日記",
+        "subtitle": "今日を、ひとことで残す。",
+        "description": "一言日記。1日1行、30文字まで。\n今日を、ひとことで残す小さな日記です。\n書くのは毎日ひとことだけ。気が向いたら書くぐらいでちょうどいい。\nページをめくるように、これまでの日々を振り返れます。\n\n◯ 特長\n・1日30文字まで。書きすぎないから続く\n・書いた日をやさしく積み上げる一覧\n・オフラインで完結、データはこの端末の中だけ\n・ライト／ダークどちらも美しい紙の質感\n・明朝体でゆっくり読める\n\n◯ プライバシーについて\n本アプリは個人情報を一切収集しません。入力されたテキストはすべてこの端末内のみに保存され、外部に送信されることはありません。",
+        "keywords": [
+          "一言",
+          "日記",
+          "ひとこと",
+          "ミニマル",
+          "シンプル",
+          "記録",
+          "継続",
+          "習慣",
+          "毎日",
+          "振り返り",
+          "手書き",
+          "紙",
+          "ノート"
+        ],
+        "marketingUrl": "https://884js.github.io/word-diary/",
+        "privacyPolicyUrl": "https://884js.github.io/word-diary/privacy.html",
+        "supportUrl": "https://github.com/884js/word-diary/issues",
+        "promoText": "今日を、ひとことで残す。1日30文字まで。続けやすい、小さな日記。",
+        "releaseNotes": "初回リリース。1日ひとことだけの、やさしい日記アプリです。"
+      }
+    },
+    "advisory": {
+      "ageRatingOverride": "NONE",
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gambling": false,
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "kidsAgeBand": null,
+      "koreaAgeRatingOverride": "NONE",
+      "lootBox": false,
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "unrestrictedWebAccess": false,
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE"
+    }
+  }
+}
