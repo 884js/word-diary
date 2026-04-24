@@ -218,6 +218,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
     minHeight: 54,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
