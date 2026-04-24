@@ -16,7 +16,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { TamaguiProvider } from 'tamagui';
@@ -44,15 +44,21 @@ export default function RootLayout() {
     NotoSerifJPBold: NotoSerifJP_700Bold,
   });
 
+  // DB の migrations/seed 完了までスプラッシュを残すためのフラグ
+  const [dbReady, setDbReady] = useState(false);
+  const handleDbReady = useCallback(() => setDbReady(true), []);
+
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
+  // フォントと DB の両方が揃ってはじめてスプラッシュを下ろす。
+  // こうしないと migrations 実行中の白画面が一瞬見える。
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && dbReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, dbReady]);
 
   if (!fontsLoaded) {
     return null;
@@ -62,7 +68,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <ThemedRoot />
+          <ThemedRoot onDbReady={handleDbReady} />
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
@@ -73,7 +79,7 @@ export default function RootLayout() {
  * テーマ解決後の内側ツリー。
  * Tamagui / Navigation / StatusBar / Stack の色を現在のスキームに合わせる。
  */
-function ThemedRoot() {
+function ThemedRoot({ onDbReady }: { onDbReady: () => void }) {
   const { scheme } = useThemeMode();
   const isDark = scheme === 'dark';
   const c = isDark ? darkColors : lightColors;
@@ -94,7 +100,7 @@ function ThemedRoot() {
   }, [isDark, c]);
 
   return (
-    <DatabaseProvider>
+    <DatabaseProvider onReady={onDbReady}>
       <KeyboardProvider>
         <TamaguiProvider
           config={tamaguiConfig}

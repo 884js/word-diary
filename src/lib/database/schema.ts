@@ -1,7 +1,7 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 /**
- * 単語日記のエントリ
+ * 一言日記のエントリ
  * 1日1行が基本（dateがUNIQUE）。編集は上書き。
  */
 export const entries = sqliteTable('entries', {

@@ -37,10 +37,13 @@ export function weekdayLabel(dateKey: string): string {
 }
 
 /**
- * YYYY-MM-DD -> 'M/D' 形式の短い日付
+ * YYYY-MM-DD -> 'M/D(曜)' 形式の短い日付。
+ * 一覧行の日付ラベルに使う。
  */
 export function shortDate(dateKey: string): string {
-  return format(parseISO(dateKey), 'M/d');
+  const d = parseISO(dateKey);
+  const weekday = WEEKDAY_LABELS[getDay(d)];
+  return `${format(d, 'M/d')}(${weekday})`;
 }
 
 /**

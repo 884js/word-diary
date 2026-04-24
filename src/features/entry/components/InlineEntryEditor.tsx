@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   date: {
-    width: 56,
+    width: 76,
     fontFamily: 'NotoSerifJP',
     fontSize: 15,
     fontVariant: ['tabular-nums'],

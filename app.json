@@ -1,14 +1,16 @@
 {
   "expo": {
-    "name": "単語日記",
+    "name": "一言日記",
     "slug": "word-diary",
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "worddiary",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.uki884.worddiary",
+      "icon": "./assets/icon.png",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "ja",
         "CFBundleLocalizations": ["ja"],
@@ -16,7 +18,11 @@
       }
     },
     "android": {
-      "package": "com.uki884.worddiary"
+      "package": "com.uki884.worddiary",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FAF8F3"
+      }
     },
     "plugins": [
       "expo-router",
