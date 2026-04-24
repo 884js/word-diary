@@ -1,7 +1,8 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
-import { colors } from '@/theme/colors';
+import type { ColorScheme } from '@/theme/colors';
+import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 
 type Props = {
@@ -9,20 +10,21 @@ type Props = {
   word: string;
 };
 
-function weekdayColor(kind: WeekdayKind): string {
-  if (kind === 'saturday') return colors.weekday.saturday;
-  if (kind === 'sunday') return colors.weekday.sunday;
-  return colors.ink.muted;
+function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
+  if (kind === 'saturday') return c.weekday.saturday;
+  if (kind === 'sunday') return c.weekday.sunday;
+  return c.ink.muted;
 }
 
 function EntryRowInner({ date, word }: Props) {
+  const c = useColors();
   const kind = weekdayKind(date);
   return (
     <View style={styles.row}>
-      <Text style={[styles.date, { color: weekdayColor(kind) }]}>
+      <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
         {shortDate(date)}
       </Text>
-      <Text style={styles.word} numberOfLines={1}>
+      <Text style={[styles.word, { color: c.ink.primary }]} numberOfLines={1}>
         {word}
       </Text>
     </View>
@@ -48,7 +50,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'NotoSerifJP',
     fontSize: 17,
-    color: colors.ink.primary,
     lineHeight: 24,
   },
 });

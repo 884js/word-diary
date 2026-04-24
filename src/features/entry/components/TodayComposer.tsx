@@ -1,4 +1,6 @@
+import { Settings as SettingsIcon } from '@tamagui/lucide-icons';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
@@ -11,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { longDate, todayKey } from '@/lib/dateUtils';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 import { useTodayEntry, useUpsertEntry } from '../hooks/useEntries';
 
@@ -46,6 +48,8 @@ const PLACEHOLDER_SAMPLES = [
  * - 記入済: そのまま編集可能な状態で表示
  */
 export function TodayComposer() {
+  const c = useColors();
+  const router = useRouter();
   const today = todayKey();
   const { data: todayEntry } = useTodayEntry();
   const upsert = useUpsertEntry();
@@ -97,20 +101,42 @@ export function TodayComposer() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.date}>{longDate(today)}</Text>
-      <Text style={styles.prompt}>
+      <View style={styles.headerRow}>
+        <Text style={[styles.date, { color: c.ink.primary }]}>
+          {longDate(today)}
+        </Text>
+        <Pressable
+          onPress={() => router.push('/settings')}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="設定を開く"
+          style={({ pressed }) => [
+            styles.settingsButton,
+            pressed && { opacity: 0.5 },
+          ]}
+        >
+          <SettingsIcon size={20} color="$inkMuted" />
+        </Pressable>
+      </View>
+      <Text style={[styles.prompt, { color: c.ink.muted }]}>
         {todayEntry ? '今日のひと言。' : '今日を、ひと言で。'}
       </Text>
 
-      <View style={[styles.inputRow, focused && styles.inputRowFocused]}>
+      <View
+        style={[
+          styles.inputRow,
+          { borderBottomColor: c.ink.subtle },
+          focused && { borderBottomColor: c.accent.blue },
+        ]}
+      >
         <TextInput
           value={draft}
           onChangeText={setDraft}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder={todayEntry ? '' : placeholderSample}
-          placeholderTextColor={colors.ink.subtle}
-          style={styles.input}
+          placeholderTextColor={c.ink.subtle}
+          style={[styles.input, { color: c.ink.primary }]}
           returnKeyType="done"
           onSubmitEditing={handleSubmit}
           maxLength={80}
@@ -123,7 +149,7 @@ export function TodayComposer() {
         pointerEvents={showButton ? 'auto' : 'none'}
       >
         <Pressable onPress={handleSubmit} disabled={upsert.isPending}>
-          <Text style={styles.action}>
+          <Text style={[styles.action, { color: c.accent.blue }]}>
             {isSaved ? '保存済み' : todayEntry ? '書き直す' : '記録する'}
           </Text>
         </Pressable>
@@ -138,33 +164,33 @@ const styles = StyleSheet.create({
     paddingTop: spacing['2xl'],
     paddingBottom: spacing.lg,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   date: {
     fontFamily: 'NotoSerifJPMedium',
     fontSize: 26,
-    color: colors.ink.primary,
     letterSpacing: 0.5,
+  },
+  settingsButton: {
+    padding: spacing.xs,
   },
   prompt: {
     marginTop: spacing.xs,
     fontFamily: 'NotoSerifJP',
     fontSize: 14,
-    color: colors.ink.muted,
   },
   inputRow: {
     marginTop: spacing.xl,
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth * 2,
-    borderBottomColor: colors.ink.subtle,
-  },
-  inputRowFocused: {
-    borderBottomColor: colors.accent.blue,
   },
   input: {
     fontFamily: 'NotoSerifJP',
     fontSize: 20,
-    color: colors.ink.primary,
     paddingVertical: spacing.xs,
-    // Android: 余計な下線やpaddingを除去
     padding: 0,
   },
   actionRow: {
@@ -175,7 +201,6 @@ const styles = StyleSheet.create({
   action: {
     fontFamily: 'NotoSerifJPMedium',
     fontSize: 15,
-    color: colors.accent.blue,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
   },

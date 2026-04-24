@@ -4,9 +4,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StackedList } from '@/features/entry/components/StackedList';
 import { TodayComposer } from '@/features/entry/components/TodayComposer';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/ThemeContext';
 
 export default function Home() {
+  const c = useColors();
   const insets = useSafeAreaInsets();
   const [editingDate, setEditingDate] = useState<string | null>(null);
 
@@ -14,7 +15,11 @@ export default function Home() {
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top, paddingBottom: insets.bottom },
+        {
+          backgroundColor: c.paper.base,
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+        },
       ]}
     >
       <KeyboardAwareScrollView
@@ -37,7 +42,6 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.paper.base,
   },
   scrollContent: {
     paddingBottom: 48,

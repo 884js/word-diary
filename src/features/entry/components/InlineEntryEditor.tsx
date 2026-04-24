@@ -2,7 +2,8 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
-import { colors } from '@/theme/colors';
+import type { ColorScheme } from '@/theme/colors';
+import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 import { useUpsertEntry } from '../hooks/useEntries';
 
@@ -12,10 +13,10 @@ type Props = {
   onComplete: () => void;
 };
 
-function weekdayColor(kind: WeekdayKind): string {
-  if (kind === 'saturday') return colors.weekday.saturday;
-  if (kind === 'sunday') return colors.weekday.sunday;
-  return colors.ink.muted;
+function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
+  if (kind === 'saturday') return c.weekday.saturday;
+  if (kind === 'sunday') return c.weekday.sunday;
+  return c.ink.muted;
 }
 
 /**
@@ -24,6 +25,7 @@ function weekdayColor(kind: WeekdayKind): string {
  * Return か blur で確定（空なら破棄）。
  */
 export function InlineEntryEditor({ date, onComplete }: Props) {
+  const c = useColors();
   const upsert = useUpsertEntry();
   const [draft, setDraft] = useState('');
 
@@ -65,8 +67,8 @@ export function InlineEntryEditor({ date, onComplete }: Props) {
   const kind = weekdayKind(date);
 
   return (
-    <View style={styles.row}>
-      <Text style={[styles.date, { color: weekdayColor(kind) }]}>
+    <View style={[styles.row, { backgroundColor: c.accent.blueSoft }]}>
+      <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
         {shortDate(date)}
       </Text>
       <TextInput
@@ -75,13 +77,13 @@ export function InlineEntryEditor({ date, onComplete }: Props) {
         onSubmitEditing={handleSubmit}
         onBlur={handleBlur}
         placeholder=""
-        placeholderTextColor={colors.ink.subtle}
-        style={styles.input}
+        placeholderTextColor={c.ink.subtle}
+        style={[styles.input, { color: c.ink.primary }]}
         returnKeyType="done"
         maxLength={80}
         autoFocus
         autoCorrect={false}
-        selectionColor={colors.accent.blue}
+        selectionColor={c.accent.blue}
       />
     </View>
   );
@@ -93,7 +95,6 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
-    backgroundColor: colors.accent.blueSoft,
   },
   date: {
     width: 56,
@@ -105,7 +106,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'NotoSerifJP',
     fontSize: 17,
-    color: colors.ink.primary,
     lineHeight: 24,
     padding: 0,
   },

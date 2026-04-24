@@ -77,6 +77,13 @@ export function yearMonthLabel(monthKey: string): string {
 }
 
 /**
+ * YYYY-MM-DD -> "YYYY年M月D日" 形式の長い日付（年含む）
+ */
+export function fullDate(dateKey: string): string {
+  return format(parseISO(dateKey), 'yyyy年M月d日');
+}
+
+/**
  * fromKey から toKey までの全日付キーを昇順で返す（両端含む）。
  */
 export function enumerateDates(fromKey: string, toKey: string): string[] {

@@ -9,7 +9,7 @@ import {
   yearMonthLabel,
   yearOf,
 } from '@/lib/dateUtils';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 import { useEntries } from '../hooks/useEntries';
 import { EmptyEntryRow } from './EmptyEntryRow';
@@ -109,6 +109,7 @@ function buildItems(entries: Entry[]): Item[] {
 }
 
 export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
+  const c = useColors();
   const { data, isLoading } = useEntries();
 
   const items = useMemo(() => buildItems(data ?? []), [data]);
@@ -116,7 +117,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={colors.ink.muted} />
+        <ActivityIndicator color={c.ink.muted} />
       </View>
     );
   }
@@ -124,7 +125,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   if (items.length === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyBody}>
+        <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
           上の欄に今日のひと言を記録すると、{'\n'}ここに積み上がっていきます。
         </Text>
       </View>
@@ -195,7 +196,6 @@ const styles = StyleSheet.create({
   emptyBody: {
     fontFamily: 'NotoSerifJP',
     fontSize: 13,
-    color: colors.ink.muted,
     textAlign: 'center',
     lineHeight: 22,
   },

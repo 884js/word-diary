@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '@/theme/colors';
+import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 
 type Props = {
@@ -11,15 +11,28 @@ type Props = {
 };
 
 function SectionDividerInner({ label, subLabel, variant = 'month' }: Props) {
+  const c = useColors();
   const isYear = variant === 'year';
   return (
     <View style={[styles.wrapper, isYear && styles.wrapperYear]}>
       <View style={styles.row}>
-        <View style={styles.line} />
-        <Text style={[styles.label, isYear && styles.labelYear]}>{label}</Text>
-        <View style={styles.line} />
+        <View style={[styles.line, { backgroundColor: c.ink.subtle }]} />
+        <Text
+          style={[
+            styles.label,
+            { color: c.ink.muted },
+            isYear && { ...styles.labelYear, color: c.ink.secondary },
+          ]}
+        >
+          {label}
+        </Text>
+        <View style={[styles.line, { backgroundColor: c.ink.subtle }]} />
       </View>
-      {subLabel ? <Text style={styles.subLabel}>{subLabel}</Text> : null}
+      {subLabel ? (
+        <Text style={[styles.subLabel, { color: c.ink.muted }]}>
+          {subLabel}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -43,18 +56,15 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.ink.subtle,
   },
   label: {
     fontFamily: 'NotoSerifJP',
     fontSize: 12,
     letterSpacing: 3,
-    color: colors.ink.muted,
   },
   labelYear: {
     fontSize: 14,
     letterSpacing: 4,
-    color: colors.ink.secondary,
   },
   subLabel: {
     marginTop: spacing.xs,
@@ -62,6 +72,5 @@ const styles = StyleSheet.create({
     fontFamily: 'NotoSerifJP',
     fontSize: 11,
     letterSpacing: 1.5,
-    color: colors.ink.muted,
   },
 });
