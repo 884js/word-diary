@@ -5,10 +5,10 @@ import {
   enumerateDates,
   monthLabel,
   monthOf,
-  todayKey,
   yearMonthLabel,
   yearOf,
 } from '@/lib/dateUtils';
+import { useToday } from '@/lib/hooks/useToday';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 import { useEntries } from '../hooks/useEntries';
@@ -40,8 +40,7 @@ type Props = {
  * - 同じ年で月だけ変わる境界は "M月" の月ラベル
  * - 最新ブロック（今日と同じ年・同じ月の領域）にはラベルを出さない
  */
-function buildItems(entries: Entry[]): Item[] {
-  const today = todayKey();
+function buildItems(entries: Entry[], today: string): Item[] {
   if (entries.length === 0) return [];
 
   const earliestDate = entries[entries.length - 1].date;
@@ -112,9 +111,10 @@ function buildItems(entries: Entry[]): Item[] {
 
 export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   const c = useColors();
+  const today = useToday();
   const { data, isLoading } = useEntries();
 
-  const items = useMemo(() => buildItems(data ?? []), [data]);
+  const items = useMemo(() => buildItems(data ?? [], today), [data, today]);
 
   if (isLoading) {
     return (

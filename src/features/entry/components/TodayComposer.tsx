@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { todayKey } from '@/lib/dateUtils';
+import { useToday } from '@/lib/hooks/useToday';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 import { useTodayEntry, useUpsertEntry } from '../hooks/useEntries';
@@ -49,7 +49,7 @@ const PLACEHOLDER_SAMPLES = [
  */
 export function TodayComposer() {
   const c = useColors();
-  const today = todayKey();
+  const today = useToday();
   const { data: todayEntry } = useTodayEntry();
   const upsert = useUpsertEntry();
 
@@ -81,6 +81,9 @@ export function TodayComposer() {
     const trimmed = draft.trim();
     if (!trimmed) return;
     await upsert.mutateAsync({ date: today, word: trimmed });
+    // 成功後は draft を空にしておく。そのまま日付が変わって
+    // Composer が再表示されたとき、前日の内容が残って見えるのを防ぐ。
+    setDraft('');
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }

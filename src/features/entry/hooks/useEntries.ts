@@ -6,7 +6,7 @@ import {
   upsertEntry,
 } from '@/lib/database/repository';
 import type { Entry } from '@/lib/database/schema';
-import { todayKey } from '@/lib/dateUtils';
+import { useToday } from '@/lib/hooks/useToday';
 
 const KEYS = {
   all: ['entries'] as const,
@@ -38,10 +38,11 @@ export function useEntries() {
  * 保存時のキャッシュ二重同期を避ける。
  */
 export function useTodayEntry() {
-  const select = useCallback((entries: Entry[]) => {
-    const today = todayKey();
-    return entries.find((e) => e.date === today) ?? null;
-  }, []);
+  const today = useToday();
+  const select = useCallback(
+    (entries: Entry[]) => entries.find((e) => e.date === today) ?? null,
+    [today],
+  );
   return useQuery({
     queryKey: KEYS.all,
     queryFn: () => listEntries(),

@@ -1,7 +1,8 @@
 import { Settings as SettingsIcon } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { longDate, todayKey } from '@/lib/dateUtils';
+import { longDate } from '@/lib/dateUtils';
+import { useToday } from '@/lib/hooks/useToday';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
 
@@ -14,7 +15,7 @@ import { spacing } from '@/theme/tokens';
 export function DiaryHeader() {
   const c = useColors();
   const router = useRouter();
-  const today = todayKey();
+  const today = useToday();
 
   return (
     <View style={styles.container}>
