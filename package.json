@@ -16,7 +16,6 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@expo-google-fonts/noto-sans-jp": "0.4.1",
     "@expo-google-fonts/noto-serif-jp": "0.4.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/native": "^7.1.6",
