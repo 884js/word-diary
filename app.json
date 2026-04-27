@@ -10,11 +10,13 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.uki884.worddiary",
-      "buildNumber": "3",
+      "buildNumber": "4",
       "icon": "./assets/icon.png",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "ja",
-        "CFBundleLocalizations": ["ja"],
+        "CFBundleLocalizations": [
+          "ja"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
