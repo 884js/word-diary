@@ -29,8 +29,7 @@ body {
   background: var(--paper);
   color: var(--ink-primary);
   font-family:
-    "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "MS Mincho",
-    serif;
+    "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "MS Mincho", serif;
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "palt" 1;

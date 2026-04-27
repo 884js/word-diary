@@ -46,9 +46,7 @@
       "indexes": {
         "entries_date_unique": {
           "name": "entries_date_unique",
-          "columns": [
-            "date"
-          ],
+          "columns": ["date"],
           "isUnique": true
         }
       },

@@ -1,8 +1,10 @@
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: #FAF8F3;
+  background: #faf8f3;
 }
