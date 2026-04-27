@@ -2,7 +2,7 @@
   "expo": {
     "name": "一言日記",
     "slug": "word-diary",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "scheme": "worddiary",
     "userInterfaceStyle": "automatic",
