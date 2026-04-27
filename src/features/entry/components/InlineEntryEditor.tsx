@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
@@ -74,7 +75,15 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
   const kind = weekdayKind(date);
 
   return (
-    <View style={[styles.row, { backgroundColor: c.accent.blueSoft }]}>
+    <View style={styles.row}>
+      <Animated.View
+        pointerEvents="none"
+        entering={FadeIn.duration(200)}
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: c.accent.blueSoft },
+        ]}
+      />
       <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
         {shortDate(date)}
       </Text>
@@ -87,7 +96,7 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
         placeholderTextColor={c.ink.subtle}
         style={[styles.input, { color: c.ink.primary }]}
         returnKeyType="done"
-        maxLength={30}
+        maxLength={14}
         autoFocus
         autoCorrect={false}
         selectTextOnFocus

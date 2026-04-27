@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import type { Entry } from '@/lib/database/schema';
 import {
   enumerateDates,
@@ -118,24 +119,33 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
 
   if (isLoading) {
     return (
-      <View style={styles.loading}>
+      <Animated.View
+        style={styles.loading}
+        layout={LinearTransition.duration(400)}
+      >
         <ActivityIndicator color={c.ink.muted} />
-      </View>
+      </Animated.View>
     );
   }
 
   if (items.length === 0) {
     return (
-      <View style={styles.empty}>
+      <Animated.View
+        style={styles.empty}
+        layout={LinearTransition.duration(400)}
+      >
         <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
           上の欄に今日のひと言を記録すると、{'\n'}ここに積み上がっていきます。
         </Text>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <View style={styles.list}>
+    <Animated.View
+      style={styles.list}
+      layout={LinearTransition.duration(400)}
+    >
       {items.map((item) => {
         if (item.kind === 'divider-year') {
           return (
@@ -187,21 +197,24 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
           />
         );
       })}
-    </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   list: {
+    paddingTop: spacing['3xl'],
     paddingBottom: spacing['4xl'],
   },
   loading: {
-    paddingVertical: spacing['3xl'],
+    paddingTop: spacing['3xl'],
+    paddingBottom: spacing['3xl'],
     alignItems: 'center',
   },
   empty: {
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing['3xl'],
+    paddingTop: spacing['3xl'],
+    paddingBottom: spacing['3xl'],
     alignItems: 'center',
   },
   emptyBody: {

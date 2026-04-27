@@ -14,9 +14,7 @@
       "icon": "./assets/icon.png",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "ja",
-        "CFBundleLocalizations": [
-          "ja"
-        ],
+        "CFBundleLocalizations": ["ja"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },

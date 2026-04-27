@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DiaryHeader } from '@/features/entry/components/DiaryHeader';
+import { PromptText } from '@/features/entry/components/PromptText';
 import { StackedList } from '@/features/entry/components/StackedList';
 import { TodayComposer } from '@/features/entry/components/TodayComposer';
 import { UpdateBanner } from '@/features/update/components/UpdateBanner';
@@ -32,6 +33,7 @@ export default function Home() {
       >
         <DiaryHeader />
         <UpdateBanner />
+        <PromptText />
         <TodayComposer />
         <StackedList
           editingDate={editingDate}
