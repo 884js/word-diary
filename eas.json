@@ -19,9 +19,14 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "testflight": {
+      "extends": "production",
+      "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {},
+    "testflight": {}
   }
 }
