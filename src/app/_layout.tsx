@@ -1,11 +1,12 @@
 import '../../tamagui-web.css';
 
-import {
-  NotoSerifJP_400Regular,
-  NotoSerifJP_500Medium,
-  NotoSerifJP_600SemiBold,
-  NotoSerifJP_700Bold,
-} from '@expo-google-fonts/noto-serif-jp';
+// NOTE: 必ず各 weight のサブパスから import すること。
+// `@expo-google-fonts/noto-serif-jp` のトップレベル index.js は全 8 weight を
+// 無条件 require しており、1 つ import しただけで 8 weight (~61MB) 全部が
+// bundle に含まれる。サブパス import なら必要な weight だけが取り込まれる。
+import { NotoSerifJP_400Regular } from '@expo-google-fonts/noto-serif-jp/400Regular';
+import { NotoSerifJP_500Medium } from '@expo-google-fonts/noto-serif-jp/500Medium';
+import { NotoSerifJP_700Bold } from '@expo-google-fonts/noto-serif-jp/700Bold';
 import {
   DarkTheme as NavDarkTheme,
   DefaultTheme as NavDefaultTheme,
@@ -40,7 +41,6 @@ export default function RootLayout() {
   const [fontsLoaded, error] = useFonts({
     NotoSerifJP: NotoSerifJP_400Regular,
     NotoSerifJPMedium: NotoSerifJP_500Medium,
-    NotoSerifJPSemiBold: NotoSerifJP_600SemiBold,
     NotoSerifJPBold: NotoSerifJP_700Bold,
   });
 
