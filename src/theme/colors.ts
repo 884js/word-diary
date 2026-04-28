@@ -13,6 +13,8 @@ export type ColorScheme = {
     base: string;
     deep: string;
     sunken: string;
+    /** 原稿用紙の罫線色。マスの枠と柱罫に使う。 */
+    rule: string;
   };
   ink: {
     primary: string;
@@ -39,9 +41,10 @@ export type ColorScheme = {
 
 export const lightColors: ColorScheme = {
   paper: {
-    base: '#FAF8F3', // 生成りのベース
-    deep: '#F2EFE6', // セクション区切りの軽い陰影
-    sunken: '#EBE7DB', // さらに一段落ち着いた背景
+    base: '#F6F8EF', // 原稿用紙寄りの微緑クリーム
+    deep: '#EEF0E5', // セクション区切りの軽い陰影
+    sunken: '#E5E8DB', // さらに一段落ち着いた背景
+    rule: '#C4D5BB', // 原稿用紙の伝統的な薄緑罫
   },
 
   ink: {
@@ -80,6 +83,7 @@ export const darkColors: ColorScheme = {
     base: '#1C1B18',
     deep: '#252421',
     sunken: '#2E2D29',
+    rule: '#3D4A38', // 暗背景でも罫線とわかる落ち着いた緑
   },
 
   ink: {

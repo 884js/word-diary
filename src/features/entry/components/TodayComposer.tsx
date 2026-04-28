@@ -147,9 +147,10 @@ export function TodayComposer() {
 
 /**
  * ひと言日記としての性格を保つため、入力は短く制限する。
- * 14 という数字は「単語〜短いフレーズ」が成立する最低限のライン。
+ * 10 という数字は原稿用紙の 10 マス（本文マス列と一致）に由来する。
+ * 「単語〜短いフレーズ」として過不足なく、俳句の 5+5 的なリズムにも収まる。
  */
-const MAX_LENGTH = 14;
+const MAX_LENGTH = 10;
 
 const styles = StyleSheet.create({
   container: {

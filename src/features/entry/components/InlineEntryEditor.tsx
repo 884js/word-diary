@@ -75,7 +75,7 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
   const kind = weekdayKind(date);
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, { borderColor: c.paper.rule }]}>
       <Animated.View
         pointerEvents="none"
         entering={FadeIn.duration(200)}
@@ -84,7 +84,12 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
           { backgroundColor: c.accent.blueSoft },
         ]}
       />
-      <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
+      <Text
+        style={[
+          styles.date,
+          { color: weekdayColor(kind, c), borderRightColor: c.paper.rule },
+        ]}
+      >
         {shortDate(date)}
       </Text>
       <TextInput
@@ -96,7 +101,7 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
         placeholderTextColor={c.ink.subtle}
         style={[styles.input, { color: c.ink.primary }]}
         returnKeyType="done"
-        maxLength={14}
+        maxLength={10}
         autoFocus
         autoCorrect={false}
         selectTextOnFocus
@@ -109,21 +114,32 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    paddingVertical: spacing.md,
+    alignItems: 'center',
     paddingHorizontal: spacing.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    // EntryRow / EmptyEntryRow のマス列と行高を揃える。
+    // 背景の blueSoft は絶対配置のレイヤで、枠の内側に収まる。
+    overflow: 'hidden',
+    minHeight: 32,
   },
   date: {
-    width: 76,
+    width: 64,
+    paddingVertical: spacing.sm,
+    paddingRight: spacing.sm,
+    borderRightWidth: StyleSheet.hairlineWidth,
     fontFamily: 'NotoSerifJP',
-    fontSize: 15,
+    fontSize: 13,
     fontVariant: ['tabular-nums'],
   },
   input: {
     flex: 1,
+    // TextInput のネイティブ余白を消した上で、柱罫との gap を paddingLeft で確保する
+    paddingTop: 0,
+    paddingRight: 0,
+    paddingBottom: 0,
+    paddingLeft: spacing.sm,
     fontFamily: 'NotoSerifJP',
     fontSize: 17,
     lineHeight: 24,
-    padding: 0,
   },
 });

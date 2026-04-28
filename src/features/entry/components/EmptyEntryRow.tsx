@@ -4,6 +4,7 @@ import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
+import { SquareCells } from './SquareCells';
 
 type Props = {
   date: string;
@@ -11,11 +12,10 @@ type Props = {
 };
 
 /**
- * 未記入の日の1行。日付だけ薄く、本文は空白。
- * タップで入力モーダルを開く。
+ * 未記入の日のマス行。日付だけ薄く、本文マスは全て空。
+ * 原稿用紙の「空マスが並んでいる」状態で、埋めたくなる視覚装置になる。
  */
 function mutedWeekdayColor(kind: WeekdayKind, c: ColorScheme): string {
-  // 土日でも、未記入日は全体を一段階薄く（紙の上の未記入マス感）
   if (kind === 'saturday') return c.weekday.saturdaySoft;
   if (kind === 'sunday') return c.weekday.sundaySoft;
   return c.ink.subtle;
@@ -30,12 +30,22 @@ function EmptyEntryRowInner({ date, onPress }: Props) {
       android_ripple={{ color: c.paper.sunken }}
       style={({ pressed }) => [
         styles.row,
+        { borderColor: c.paper.rule },
         pressed && { backgroundColor: c.paper.deep },
       ]}
     >
-      <Text style={[styles.date, { color: mutedWeekdayColor(kind, c) }]}>
+      <Text
+        style={[
+          styles.date,
+          {
+            color: mutedWeekdayColor(kind, c),
+            borderRightColor: c.paper.rule,
+          },
+        ]}
+      >
         {shortDate(date)}
       </Text>
+      <SquareCells textColor={c.ink.primary} ruleColor={c.paper.rule} />
     </Pressable>
   );
 }
@@ -45,14 +55,17 @@ export const EmptyEntryRow = memo(EmptyEntryRowInner);
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    paddingVertical: spacing.md,
+    alignItems: 'center',
     paddingHorizontal: spacing.xl,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   date: {
-    width: 76,
+    width: 64,
+    paddingVertical: spacing.sm,
+    paddingRight: spacing.sm,
+    borderRightWidth: StyleSheet.hairlineWidth,
     fontFamily: 'NotoSerifJP',
-    fontSize: 15,
+    fontSize: 13,
     fontVariant: ['tabular-nums'],
   },
 });
