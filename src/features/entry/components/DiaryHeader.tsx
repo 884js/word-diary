@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   date: {
     fontFamily: 'NotoSerifJPMedium',
-    fontSize: 36,
+    fontSize: 30,
     letterSpacing: 1.2,
   },
   rightCluster: {
