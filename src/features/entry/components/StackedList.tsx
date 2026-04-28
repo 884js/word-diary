@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import type { Entry } from '@/lib/database/schema';
 import {
@@ -142,10 +142,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   }
 
   return (
-    <Animated.View
-      style={styles.list}
-      layout={LinearTransition.duration(400)}
-    >
+    <Animated.View style={styles.list} layout={LinearTransition.duration(400)}>
       {items.map((item) => {
         if (item.kind === 'divider-year') {
           return (

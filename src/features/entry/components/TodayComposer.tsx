@@ -97,10 +97,7 @@ export function TodayComposer() {
   }
 
   return (
-    <Animated.View
-      style={styles.container}
-      exiting={FadeOutUp.duration(400)}
-    >
+    <Animated.View style={styles.container} exiting={FadeOutUp.duration(400)}>
       <View
         style={[
           styles.inputRow,
