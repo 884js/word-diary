@@ -6,7 +6,7 @@ import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
-import { useUpsertEntry } from '../hooks/useEntries';
+import { useDeleteEntry, useUpsertEntry } from '../hooks/useEntries';
 
 type Props = {
   date: string;
@@ -33,6 +33,7 @@ function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
 export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
   const c = useColors();
   const upsert = useUpsertEntry();
+  const deleteEntry = useDeleteEntry();
   const [draft, setDraft] = useState(initialValue ?? '');
 
   // 多重コミット防止（blur → onComplete → unmount の流れで複数回呼ばれるのを防ぐ）
@@ -45,7 +46,17 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
     if (committedRef.current) return;
     committedRef.current = true;
     const trimmed = draft.trim();
-    if (trimmed.length === 0) return;
+    // 既存エントリがあるのに本文を空にした = 削除したい意図。
+    // 紙の手帳で「消しゴムで消したらマスだけ残る」に相当する挙動。
+    if (trimmed.length === 0) {
+      if (initialValue) {
+        deleteEntry.mutate(date);
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+      }
+      return;
+    }
     // 既存の単語と同一なら書き込みしない（updatedAt を無駄に動かさない）
     if (trimmed === initialValue) return;
     upsert.mutate({ date, word: trimmed });

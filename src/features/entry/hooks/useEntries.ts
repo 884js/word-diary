@@ -97,14 +97,26 @@ export function useUpsertEntry() {
   });
 }
 
+type DeleteContext = {
+  prevAll: Entry[] | undefined;
+};
+
 export function useDeleteEntry() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (date: string) => deleteEntry(date),
-    onSuccess: (_void, date) => {
+  return useMutation<void, unknown, string, DeleteContext>({
+    mutationFn: (date) => deleteEntry(date),
+    // mutate 呼び出し中に同期でキャッシュから削除し、DB書き込み待ちの
+    // ちらつき（削除前の値が一瞬見える現象）を消す。
+    onMutate: (date) => {
+      const prevAll = qc.getQueryData<Entry[]>(KEYS.all);
       qc.setQueryData<Entry[] | undefined>(KEYS.all, (prev) =>
         prev ? prev.filter((e) => e.date !== date) : prev,
       );
+      return { prevAll };
+    },
+    onError: (_err, _date, ctx) => {
+      if (!ctx) return;
+      qc.setQueryData(KEYS.all, ctx.prevAll);
     },
   });
 }
