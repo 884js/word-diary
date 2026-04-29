@@ -75,7 +75,7 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
   const kind = weekdayKind(date);
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, { borderBottomColor: c.paper.rule }]}>
       <Animated.View
         pointerEvents="none"
         entering={FadeIn.duration(200)}
@@ -109,9 +109,10 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   date: {
     width: 76,

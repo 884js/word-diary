@@ -39,7 +39,11 @@ function EntryRowInner({ date, word, onPress }: Props) {
   );
 
   if (!onPress) {
-    return <View style={styles.row}>{content}</View>;
+    return (
+      <View style={[styles.row, { borderBottomColor: c.paper.rule }]}>
+        {content}
+      </View>
+    );
   }
 
   return (
@@ -48,6 +52,7 @@ function EntryRowInner({ date, word, onPress }: Props) {
       android_ripple={{ color: c.paper.sunken }}
       style={({ pressed }) => [
         styles.row,
+        { borderBottomColor: c.paper.rule },
         pressed && { backgroundColor: c.paper.deep },
       ]}
     >
@@ -61,9 +66,10 @@ export const EntryRow = memo(EntryRowInner);
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   date: {
     width: 76,

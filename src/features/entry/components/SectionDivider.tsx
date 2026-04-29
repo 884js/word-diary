@@ -42,7 +42,10 @@ export const SectionDivider = memo(SectionDividerInner);
 const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
+    // 直前の行の下罫線が視覚的な「上」として効くため、
+    // paddingTop を多めに取って divider が視覚的に中央へ来るよう調整。
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
   },
   wrapperYear: {
     paddingTop: spacing['3xl'],

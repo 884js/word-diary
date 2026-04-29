@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import type { Entry } from '@/lib/database/schema';
 import {
@@ -143,6 +143,8 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
 
   return (
     <Animated.View style={styles.list} layout={LinearTransition.duration(400)}>
+      {/* 最上段の罫線。便箋の一番上の線として、最初の行の上に引く。 */}
+      <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
       {items.map((item) => {
         if (item.kind === 'divider-year') {
           return (
@@ -202,6 +204,9 @@ const styles = StyleSheet.create({
   list: {
     paddingTop: spacing['3xl'],
     paddingBottom: spacing['4xl'],
+  },
+  topRule: {
+    height: StyleSheet.hairlineWidth,
   },
   loading: {
     paddingTop: spacing['3xl'],

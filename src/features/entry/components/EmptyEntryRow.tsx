@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
@@ -12,7 +12,7 @@ type Props = {
 
 /**
  * 未記入の日の1行。日付だけ薄く、本文は空白。
- * タップで入力モーダルを開く。
+ * タップで入力モードへ。
  */
 function mutedWeekdayColor(kind: WeekdayKind, c: ColorScheme): string {
   // 土日・祝日でも、未記入日は全体を一段階薄く（紙の上の未記入マス感）
@@ -30,12 +30,15 @@ function EmptyEntryRowInner({ date, onPress }: Props) {
       android_ripple={{ color: c.paper.sunken }}
       style={({ pressed }) => [
         styles.row,
+        { borderBottomColor: c.paper.rule },
         pressed && { backgroundColor: c.paper.deep },
       ]}
     >
       <Text style={[styles.date, { color: mutedWeekdayColor(kind, c) }]}>
         {shortDate(date)}
       </Text>
+      {/* 記入済み行と行高を揃えるための空スロット */}
+      <View style={styles.wordSlot} />
     </Pressable>
   );
 }
@@ -45,14 +48,20 @@ export const EmptyEntryRow = memo(EmptyEntryRowInner);
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   date: {
     width: 76,
     fontFamily: 'NotoSerifJP',
     fontSize: 15,
     fontVariant: ['tabular-nums'],
+  },
+  wordSlot: {
+    flex: 1,
+    // EntryRow の word (lineHeight: 24) と行高を揃える
+    minHeight: 24,
   },
 });
