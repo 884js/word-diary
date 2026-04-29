@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.uki884.worddiary",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "icon": "./assets/icon.png",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "ja",
