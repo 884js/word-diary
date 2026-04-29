@@ -1,3 +1,4 @@
+import holidayJp from '@holiday-jp/holiday_jp';
 import { eachDayOfInterval, format, getDay, parseISO } from 'date-fns';
 
 /**
@@ -16,16 +17,37 @@ export function todayKey(): string {
 
 const WEEKDAY_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const;
 
-export type WeekdayKind = 'weekday' | 'saturday' | 'sunday';
+export type WeekdayKind = 'weekday' | 'saturday' | 'sunday' | 'holiday';
 
 /**
  * YYYY-MM-DD -> 曜日の種別
+ *
+ * 祝日は曜日に優先する（土曜が祝日でも 'holiday' を返す）。
+ * UI 側では 'holiday' は 'sunday' と同じ赤系で表示することで、
+ * 紙の手帳の慣習に揃える。
  */
 export function weekdayKind(dateKey: string): WeekdayKind {
+  if (isHoliday(dateKey)) return 'holiday';
   const day = getDay(parseISO(dateKey));
   if (day === 0) return 'sunday';
   if (day === 6) return 'saturday';
   return 'weekday';
+}
+
+/**
+ * その日が日本の祝日か（振替休日・国民の休日も含む）。
+ */
+export function isHoliday(dateKey: string): boolean {
+  return holidayJp.isHoliday(dateKey);
+}
+
+/**
+ * 祝日名（例: "昭和の日"）。祝日でなければ null。
+ */
+export function holidayName(dateKey: string): string | null {
+  const d = parseISO(dateKey);
+  const list = holidayJp.between(d, d);
+  return list[0]?.name ?? null;
 }
 
 /**

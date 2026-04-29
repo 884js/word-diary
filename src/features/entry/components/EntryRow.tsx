@@ -18,7 +18,8 @@ type Props = {
 
 function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
   if (kind === 'saturday') return c.weekday.saturday;
-  if (kind === 'sunday') return c.weekday.sunday;
+  // 祝日は紙の手帳の慣習に従い日曜と同じ赤
+  if (kind === 'sunday' || kind === 'holiday') return c.weekday.sunday;
   return c.ink.muted;
 }
 

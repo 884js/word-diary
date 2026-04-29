@@ -15,9 +15,9 @@ type Props = {
  * タップで入力モーダルを開く。
  */
 function mutedWeekdayColor(kind: WeekdayKind, c: ColorScheme): string {
-  // 土日でも、未記入日は全体を一段階薄く（紙の上の未記入マス感）
+  // 土日・祝日でも、未記入日は全体を一段階薄く（紙の上の未記入マス感）
   if (kind === 'saturday') return c.weekday.saturdaySoft;
-  if (kind === 'sunday') return c.weekday.sundaySoft;
+  if (kind === 'sunday' || kind === 'holiday') return c.weekday.sundaySoft;
   return c.ink.subtle;
 }
 

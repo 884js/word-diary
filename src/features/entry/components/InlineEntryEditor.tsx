@@ -21,7 +21,7 @@ type Props = {
 
 function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
   if (kind === 'saturday') return c.weekday.saturday;
-  if (kind === 'sunday') return c.weekday.sunday;
+  if (kind === 'sunday' || kind === 'holiday') return c.weekday.sunday;
   return c.ink.muted;
 }
 
