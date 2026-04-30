@@ -63,7 +63,7 @@ struct TodayWordWidgetView: View {
             // ヘッダー: 通し番号
             if entry.data.totalCount > 0 {
                 Text("No. \(String(format: "%03d", entry.data.totalCount))")
-                    .font(.system(size: 11, design: .serif))
+                    .font(WidgetFont.serif(11))
                     .foregroundColor(Color("inkMuted"))
             }
 
@@ -72,14 +72,14 @@ struct TodayWordWidgetView: View {
             // 中央: 今日のひと言 or 誘導テキスト
             if let word = todayWord {
                 Text(word)
-                    .font(.system(size: 18, design: .serif))
+                    .font(WidgetFont.serif(18))
                     .foregroundColor(Color("inkPrimary"))
                     .multilineTextAlignment(.leading)
                     .lineLimit(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 Text("今日を、\nひとことで")
-                    .font(.system(size: 14, design: .serif))
+                    .font(WidgetFont.serif(14))
                     .foregroundColor(Color("inkMuted"))
                     .multilineTextAlignment(.leading)
                     .lineSpacing(2)
@@ -90,7 +90,7 @@ struct TodayWordWidgetView: View {
 
             // フッター: 日付
             Text(dateLabel)
-                .font(.system(size: 11, design: .serif))
+                .font(WidgetFont.serif(11))
                 .monospacedDigit()
                 .foregroundColor(dateColor)
         }

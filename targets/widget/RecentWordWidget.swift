@@ -148,12 +148,12 @@ struct WidgetEntryView: View {
             HStack {
                 if entry.data.totalCount > 0 {
                     Text("No. \(String(format: "%03d", entry.data.totalCount))")
-                        .font(.system(size: 12, design: .serif))
+                        .font(WidgetFont.serif(12))
                         .foregroundColor(Color("inkMuted"))
                 }
                 Spacer()
                 Text(headerDate)
-                    .font(.system(size: 12, design: .serif))
+                    .font(WidgetFont.serif(12))
                     .foregroundColor(Color("inkMuted"))
             }
             .padding(.bottom, 10)
@@ -162,7 +162,7 @@ struct WidgetEntryView: View {
             if displayEntries.isEmpty {
                 Spacer()
                 Text("最初のひと言を書いてみよう")
-                    .font(.system(size: 14, design: .serif))
+                    .font(WidgetFont.serif(14))
                     .foregroundColor(Color("inkMuted"))
                     .frame(maxWidth: .infinity, alignment: .center)
                 Spacer()
@@ -173,12 +173,12 @@ struct WidgetEntryView: View {
                 ForEach(displayEntries) { item in
                     HStack(alignment: .center, spacing: 12) {
                         Text(shortDate(item.date))
-                            .font(.system(size: 13, design: .serif))
+                            .font(WidgetFont.serif(13))
                             .monospacedDigit()
                             .foregroundColor(weekdayColor(item.kind))
                             .frame(width: 64, alignment: .leading)
                         Text(item.word)
-                            .font(.system(size: 15, design: .serif))
+                            .font(WidgetFont.serif(15))
                             .foregroundColor(Color("inkPrimary"))
                             .lineLimit(1)
                             .truncationMode(.tail)
