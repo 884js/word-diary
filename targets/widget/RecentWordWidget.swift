@@ -100,6 +100,7 @@ struct WidgetEntry: TimelineEntry {
 
 struct WidgetEntryView: View {
     var entry: WidgetEntry
+    @Environment(\.widgetFamily) var family
 
     private var headerDate: String {
         shortDate(entry.data.today)
@@ -134,8 +135,15 @@ struct WidgetEntryView: View {
         }
     }
 
+    private var displayCount: Int {
+        switch family {
+        case .systemMedium: return 3
+        default: return 7
+        }
+    }
+
     private var displayEntries: [DiaryEntry] {
-        Array(entry.data.entries.prefix(7))
+        Array(entry.data.entries.prefix(displayCount))
     }
 
     var body: some View {
@@ -207,13 +215,20 @@ struct RecentWordWidget: Widget {
         }
         .configurationDisplayName("最近のひと言")
         .description("一言日記の最新の記録を表示します。")
-        .supportedFamilies([.systemLarge])
+        .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
 
 // MARK: - Preview
 
 #Preview(as: .systemLarge) {
+    RecentWordWidget()
+} timeline: {
+    WidgetEntry(date: .now, data: .placeholder)
+    WidgetEntry(date: .now, data: .empty)
+}
+
+#Preview(as: .systemMedium) {
     RecentWordWidget()
 } timeline: {
     WidgetEntry(date: .now, data: .placeholder)
