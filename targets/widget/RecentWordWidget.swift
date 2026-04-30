@@ -102,11 +102,7 @@ struct WidgetEntryView: View {
     var entry: WidgetEntry
 
     private var headerDate: String {
-        let parts = entry.data.today.split(separator: "-")
-        guard parts.count == 3,
-              let month = Int(parts[1]),
-              let day = Int(parts[2]) else { return "" }
-        return "\(month)月\(day)日"
+        shortDate(entry.data.today)
     }
 
     private func shortDate(_ key: String) -> String {
@@ -155,6 +151,9 @@ struct WidgetEntryView: View {
                 Text(headerDate)
                     .font(WidgetFont.serif(12))
                     .foregroundColor(Color("inkMuted"))
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .layoutPriority(1)
             }
             .padding(.bottom, 10)
 
