@@ -6,6 +6,11 @@
  * - dark は「夜の紙」。真っ黒ではなく温かみのあるダークブラウン寄り
  * - アクセントは1画面1色まで
  * - 曜日色分けは彩度を抑えて控えめに
+ *
+ * NOTE: ホーム画面ウィジェット側の色定義
+ * (`targets/widget/Assets.xcassets/*.colorset/Contents.json`) も
+ * 同じ値で同期させること。color-space は "srgb"（display-p3 にすると
+ * RN 側の sRGB 解釈とズレてアプリと色味が一致しなくなる）。
  */
 
 export type ColorScheme = {
