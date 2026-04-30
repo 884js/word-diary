@@ -21,6 +21,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { TamaguiProvider } from 'tamagui';
+import { WidgetSyncEffect } from '@/features/widget/WidgetSyncEffect';
 import { DatabaseProvider } from '@/lib/database';
 import { darkColors, lightColors } from '@/theme/colors';
 import { ThemeProvider, useThemeMode } from '@/theme/ThemeContext';
@@ -109,6 +110,7 @@ function ThemedRoot({ onDbReady }: { onDbReady: () => void }) {
           <PortalProvider>
             <NavigationThemeProvider value={navigationTheme}>
               <StatusBar style={isDark ? 'light' : 'dark'} />
+              <WidgetSyncEffect />
               <Stack
                 screenOptions={{
                   headerShown: false,
