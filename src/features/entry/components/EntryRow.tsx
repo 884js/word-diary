@@ -14,6 +14,8 @@ type Props = {
    * 今日の行など、再編集を許す場合だけ渡す。
    */
   onPress?: () => void;
+  /** 直下が SectionDivider の場合に true。下罫線が divider と重なるのを避ける。 */
+  hideBottomBorder?: boolean;
 };
 
 function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
@@ -23,7 +25,7 @@ function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
   return c.ink.muted;
 }
 
-function EntryRowInner({ date, word, onPress }: Props) {
+function EntryRowInner({ date, word, onPress, hideBottomBorder }: Props) {
   const c = useColors();
   const kind = weekdayKind(date);
 
@@ -38,12 +40,12 @@ function EntryRowInner({ date, word, onPress }: Props) {
     </>
   );
 
+  const borderStyle = hideBottomBorder
+    ? { borderBottomWidth: 0 }
+    : { borderBottomColor: c.paper.rule };
+
   if (!onPress) {
-    return (
-      <View style={[styles.row, { borderBottomColor: c.paper.rule }]}>
-        {content}
-      </View>
-    );
+    return <View style={[styles.row, borderStyle]}>{content}</View>;
   }
 
   return (
@@ -52,7 +54,7 @@ function EntryRowInner({ date, word, onPress }: Props) {
       android_ripple={{ color: c.paper.sunken }}
       style={({ pressed }) => [
         styles.row,
-        { borderBottomColor: c.paper.rule },
+        borderStyle,
         pressed && { backgroundColor: c.paper.deep },
       ]}
     >

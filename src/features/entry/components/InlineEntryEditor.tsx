@@ -17,6 +17,8 @@ type Props = {
   initialValue?: string;
   /** 入力セッションが終了したとき（保存/破棄問わず）に呼ばれる */
   onComplete: () => void;
+  /** 直下が SectionDivider の場合に true。下罫線が divider と重なるのを避ける。 */
+  hideBottomBorder?: boolean;
 };
 
 function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
@@ -30,7 +32,12 @@ function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
  * 紙の手帳に書き足す感覚を保つため、ボタンは出さず、
  * Return か blur で確定（空なら破棄）。
  */
-export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
+export function InlineEntryEditor({
+  date,
+  initialValue,
+  onComplete,
+  hideBottomBorder,
+}: Props) {
   const c = useColors();
   const upsert = useUpsertEntry();
   const deleteEntry = useDeleteEntry();
@@ -85,8 +92,12 @@ export function InlineEntryEditor({ date, initialValue, onComplete }: Props) {
 
   const kind = weekdayKind(date);
 
+  const borderStyle = hideBottomBorder
+    ? { borderBottomWidth: 0 }
+    : { borderBottomColor: c.paper.rule };
+
   return (
-    <View style={[styles.row, { borderBottomColor: c.paper.rule }]}>
+    <View style={[styles.row, borderStyle]}>
       <Animated.View
         pointerEvents="none"
         entering={FadeIn.duration(200)}

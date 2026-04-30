@@ -22,7 +22,7 @@ type Item =
   | { kind: 'entry'; entry: Entry }
   | { kind: 'empty'; date: string }
   | { kind: 'divider-year'; key: string; label: string; count: number }
-  | { kind: 'divider-month'; key: string; label: string };
+  | { kind: 'divider-month'; key: string; label: string; count: number };
 
 type Props = {
   editingDate: string | null;
@@ -50,11 +50,14 @@ function buildItems(entries: Entry[], today: string): Item[] {
 
   const entryByDate = new Map(entries.map((e) => [e.date, e] as const));
 
-  // 年ごとの記録数
+  // 年・月ごとの記録数
   const countByYear = new Map<string, number>();
+  const countByMonth = new Map<string, number>();
   for (const e of entries) {
     const y = yearOf(e.date);
+    const m = monthOf(e.date);
     countByYear.set(y, (countByYear.get(y) ?? 0) + 1);
+    countByMonth.set(m, (countByMonth.get(m) ?? 0) + 1);
   }
 
   const currentYear = yearOf(today);
@@ -86,6 +89,7 @@ function buildItems(entries: Entry[], today: string): Item[] {
           kind: 'divider-month',
           key: `month-${m}`,
           label: monthLabel(m),
+          count: countByMonth.get(m) ?? 0,
         });
       }
       lastYear = y;
@@ -95,6 +99,7 @@ function buildItems(entries: Entry[], today: string): Item[] {
         kind: 'divider-month',
         key: `month-${m}`,
         label: monthLabel(m),
+        count: countByMonth.get(m) ?? 0,
       });
       lastMonth = m;
     }
@@ -141,11 +146,17 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
     );
   }
 
+  // 先頭が SectionDivider のときは divider 自体が上端線を兼ねるので topRule は出さない。
+  const showTopRule =
+    items[0].kind !== 'divider-month' && items[0].kind !== 'divider-year';
+
   return (
     <Animated.View style={styles.list} layout={LinearTransition.duration(400)}>
       {/* 最上段の罫線。便箋の一番上の線として、最初の行の上に引く。 */}
-      <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
-      {items.map((item) => {
+      {showTopRule && (
+        <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
+      )}
+      {items.map((item, i) => {
         if (item.kind === 'divider-year') {
           return (
             <SectionDivider
@@ -158,13 +169,22 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
         }
         if (item.kind === 'divider-month') {
           return (
-            <SectionDivider key={item.key} label={item.label} variant="month" />
+            <SectionDivider
+              key={item.key}
+              label={item.label}
+              subLabel={`書いた日数 ${item.count}日`}
+              variant="month"
+            />
           );
         }
         // entry / empty は編集中かどうかで描画を切り替える
         const itemDate = item.kind === 'entry' ? item.entry.date : item.date;
         const existingWord =
           item.kind === 'entry' ? item.entry.word : undefined;
+        // 直下が月/年の divider の場合、行の下罫線は divider に任せて省く
+        const next = items[i + 1];
+        const hideBottomBorder =
+          next?.kind === 'divider-month' || next?.kind === 'divider-year';
 
         if (editingDate === itemDate) {
           return (
@@ -173,6 +193,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
               date={itemDate}
               initialValue={existingWord}
               onComplete={onEndEdit}
+              hideBottomBorder={hideBottomBorder}
             />
           );
         }
@@ -184,6 +205,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
               date={item.entry.date}
               word={item.entry.word}
               onPress={() => onStartEdit(item.entry.date)}
+              hideBottomBorder={hideBottomBorder}
             />
           );
         }
@@ -193,6 +215,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
             key={`empty-${item.date}`}
             date={item.date}
             onPress={() => onStartEdit(item.date)}
+            hideBottomBorder={hideBottomBorder}
           />
         );
       })}

@@ -8,6 +8,8 @@ import { spacing } from '@/theme/tokens';
 type Props = {
   date: string;
   onPress?: () => void;
+  /** 直下が SectionDivider の場合に true。下罫線が divider と重なるのを避ける。 */
+  hideBottomBorder?: boolean;
 };
 
 /**
@@ -21,16 +23,19 @@ function mutedWeekdayColor(kind: WeekdayKind, c: ColorScheme): string {
   return c.ink.subtle;
 }
 
-function EmptyEntryRowInner({ date, onPress }: Props) {
+function EmptyEntryRowInner({ date, onPress, hideBottomBorder }: Props) {
   const c = useColors();
   const kind = weekdayKind(date);
+  const borderStyle = hideBottomBorder
+    ? { borderBottomWidth: 0 }
+    : { borderBottomColor: c.paper.rule };
   return (
     <Pressable
       onPress={onPress}
       android_ripple={{ color: c.paper.sunken }}
       style={({ pressed }) => [
         styles.row,
-        { borderBottomColor: c.paper.rule },
+        borderStyle,
         pressed && { backgroundColor: c.paper.deep },
       ]}
     >
