@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DiaryHeader } from '@/features/entry/components/DiaryHeader';
 import { PromptText } from '@/features/entry/components/PromptText';
@@ -25,22 +24,15 @@ export default function Home() {
         },
       ]}
     >
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        bottomOffset={24}
-      >
-        <DiaryHeader />
-        <UpdateBanner />
-        <PromptText />
-        <TodayComposer />
-        <StackedList
-          editingDate={editingDate}
-          onStartEdit={setEditingDate}
-          onEndEdit={() => setEditingDate(null)}
-        />
-      </KeyboardAwareScrollView>
+      <DiaryHeader />
+      <UpdateBanner />
+      <PromptText />
+      <TodayComposer />
+      <StackedList
+        editingDate={editingDate}
+        onStartEdit={setEditingDate}
+        onEndEdit={() => setEditingDate(null)}
+      />
     </View>
   );
 }
@@ -48,8 +40,5 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 48,
   },
 });

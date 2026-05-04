@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import type { Entry } from '@/lib/database/schema';
 import {
   enumerateDates,
@@ -115,6 +120,14 @@ function buildItems(entries: Entry[], today: string): Item[] {
   return items;
 }
 
+function keyForItem(item: Item): string {
+  if (item.kind === 'divider-year' || item.kind === 'divider-month') {
+    return item.key;
+  }
+  if (item.kind === 'entry') return item.entry.id;
+  return `empty-${item.date}`;
+}
+
 export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
   const c = useColors();
   const today = useToday();
@@ -124,25 +137,19 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
 
   if (isLoading) {
     return (
-      <Animated.View
-        style={styles.loading}
-        layout={LinearTransition.duration(400)}
-      >
+      <View style={styles.loading}>
         <ActivityIndicator color={c.ink.muted} />
-      </Animated.View>
+      </View>
     );
   }
 
   if (items.length === 0) {
     return (
-      <Animated.View
-        style={styles.empty}
-        layout={LinearTransition.duration(400)}
-      >
+      <View style={styles.empty}>
         <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
           上の欄に今日のひと言を記録すると、{'\n'}ここに積み上がっていきます。
         </Text>
-      </Animated.View>
+      </View>
     );
   }
 
@@ -151,16 +158,23 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
     items[0].kind !== 'divider-month' && items[0].kind !== 'divider-year';
 
   return (
-    <Animated.View style={styles.list} layout={LinearTransition.duration(400)}>
-      {/* 最上段の罫線。便箋の一番上の線として、最初の行の上に引く。 */}
-      {showTopRule && (
-        <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
-      )}
-      {items.map((item, i) => {
+    <FlatList
+      style={styles.list}
+      contentContainerStyle={styles.listContent}
+      data={items}
+      keyExtractor={keyForItem}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      automaticallyAdjustKeyboardInsets
+      ListHeaderComponent={
+        showTopRule ? (
+          <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
+        ) : null
+      }
+      renderItem={({ item, index }) => {
         if (item.kind === 'divider-year') {
           return (
             <SectionDivider
-              key={item.key}
               label={item.label}
               subLabel={`書いた日数 ${item.count}日`}
               variant="year"
@@ -170,7 +184,6 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
         if (item.kind === 'divider-month') {
           return (
             <SectionDivider
-              key={item.key}
               label={item.label}
               subLabel={`書いた日数 ${item.count}日`}
               variant="month"
@@ -182,14 +195,13 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
         const existingWord =
           item.kind === 'entry' ? item.entry.word : undefined;
         // 直下が月/年の divider の場合、行の下罫線は divider に任せて省く
-        const next = items[i + 1];
+        const next = items[index + 1];
         const hideBottomBorder =
           next?.kind === 'divider-month' || next?.kind === 'divider-year';
 
         if (editingDate === itemDate) {
           return (
             <InlineEntryEditor
-              key={`editor-${itemDate}`}
               date={itemDate}
               initialValue={existingWord}
               onComplete={onEndEdit}
@@ -201,7 +213,6 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
         if (item.kind === 'entry') {
           return (
             <EntryRow
-              key={item.entry.id}
               date={item.entry.date}
               word={item.entry.word}
               onPress={() => onStartEdit(item.entry.date)}
@@ -212,19 +223,21 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
 
         return (
           <EmptyEntryRow
-            key={`empty-${item.date}`}
             date={item.date}
             onPress={() => onStartEdit(item.date)}
             hideBottomBorder={hideBottomBorder}
           />
         );
-      })}
-    </Animated.View>
+      }}
+    />
   );
 }
 
 const styles = StyleSheet.create({
   list: {
+    flex: 1,
+  },
+  listContent: {
     paddingTop: spacing['3xl'],
     paddingBottom: spacing['4xl'],
   },
@@ -232,14 +245,14 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
   },
   loading: {
+    flex: 1,
     paddingTop: spacing['3xl'],
-    paddingBottom: spacing['3xl'],
     alignItems: 'center',
   },
   empty: {
+    flex: 1,
     paddingHorizontal: spacing.xl,
     paddingTop: spacing['3xl'],
-    paddingBottom: spacing['3xl'],
     alignItems: 'center',
   },
   emptyBody: {
