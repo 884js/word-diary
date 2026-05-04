@@ -8,7 +8,7 @@ struct TodayWordWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             TodayWordWidgetView(entry: entry)
                 .containerBackground(for: .widget) {
-                    Color("paperBase")
+                    Color.widgetAsset("paperBase", mode: entry.data.themeMode)
                 }
         }
         .configurationDisplayName("今日のひとこと")
@@ -51,20 +51,22 @@ struct TodayWordWidgetView: View {
     }
 
     private var dateColor: Color {
+        let mode = entry.data.themeMode
         switch entry.data.todayKind {
-        case "saturday": return Color("weekdaySaturday")
-        case "sunday", "holiday": return Color("weekdaySunday")
-        default: return Color("inkMuted")
+        case "saturday": return Color.widgetAsset("weekdaySaturday", mode: mode)
+        case "sunday", "holiday": return Color.widgetAsset("weekdaySunday", mode: mode)
+        default: return Color.widgetAsset("inkMuted", mode: mode)
         }
     }
 
     var body: some View {
+        let mode = entry.data.themeMode
         VStack(alignment: .leading, spacing: 0) {
             // ヘッダー: 通し番号
             if entry.data.totalCount > 0 {
                 Text("No. \(String(format: "%03d", entry.data.totalCount))")
                     .font(WidgetFont.serif(11))
-                    .foregroundColor(Color("inkMuted"))
+                    .foregroundColor(Color.widgetAsset("inkMuted", mode: mode))
             }
 
             Spacer(minLength: 0)
@@ -73,14 +75,14 @@ struct TodayWordWidgetView: View {
             if let word = todayWord {
                 Text(word)
                     .font(WidgetFont.serif(18))
-                    .foregroundColor(Color("inkPrimary"))
+                    .foregroundColor(Color.widgetAsset("inkPrimary", mode: mode))
                     .multilineTextAlignment(.leading)
                     .lineLimit(3)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 Text("今日を、\nひとことで")
                     .font(WidgetFont.serif(14))
-                    .foregroundColor(Color("inkMuted"))
+                    .foregroundColor(Color.widgetAsset("inkMuted", mode: mode))
                     .multilineTextAlignment(.leading)
                     .lineSpacing(2)
                     .frame(maxWidth: .infinity, alignment: .leading)

@@ -16,6 +16,16 @@ struct WidgetData: Codable {
     let today: String  // "YYYY-MM-DD"
     let todayKind: String  // "weekday" | "saturday" | "sunday" | "holiday"
     let entries: [DiaryEntry]
+    /// アプリ本体で選択されたテーマモード ('system' / 'light' / 'dark')。
+    /// JSON ペイロードには含めず、別キーから読み込んだ値を後付けする。
+    var themeMode: String = "system"
+
+    private enum CodingKeys: String, CodingKey {
+        case totalCount
+        case today
+        case todayKind
+        case entries
+    }
 
     static var placeholder: WidgetData {
         WidgetData(
@@ -59,13 +69,16 @@ private func dateKey(daysBack: Int) -> String {
 
 private func loadWidgetData() -> WidgetData {
     let defaults = UserDefaults(suiteName: appGroupId)
-    guard let json = defaults?.string(forKey: widgetDataKey),
-          let data = json.data(using: .utf8),
-          let decoded = try? JSONDecoder().decode(WidgetData.self, from: data)
-    else {
-        return WidgetData.empty
+    var data: WidgetData
+    if let json = defaults?.string(forKey: widgetDataKey),
+       let jsonData = json.data(using: .utf8),
+       let decoded = try? JSONDecoder().decode(WidgetData.self, from: jsonData) {
+        data = decoded
+    } else {
+        data = WidgetData.empty
     }
-    return decoded
+    data.themeMode = WidgetTheme.currentMode()
+    return data
 }
 
 // MARK: - Timeline Provider
@@ -128,10 +141,11 @@ struct WidgetEntryView: View {
     }
 
     private func weekdayColor(_ kind: String) -> Color {
+        let mode = entry.data.themeMode
         switch kind {
-        case "saturday": return Color("weekdaySaturday")
-        case "sunday", "holiday": return Color("weekdaySunday")
-        default: return Color("inkMuted")
+        case "saturday": return Color.widgetAsset("weekdaySaturday", mode: mode)
+        case "sunday", "holiday": return Color.widgetAsset("weekdaySunday", mode: mode)
+        default: return Color.widgetAsset("inkMuted", mode: mode)
         }
     }
 
@@ -147,18 +161,19 @@ struct WidgetEntryView: View {
     }
 
     var body: some View {
+        let mode = entry.data.themeMode
         VStack(alignment: .leading, spacing: 0) {
             // ヘッダー
             HStack {
                 if entry.data.totalCount > 0 {
                     Text("No. \(String(format: "%03d", entry.data.totalCount))")
                         .font(WidgetFont.serif(12))
-                        .foregroundColor(Color("inkMuted"))
+                        .foregroundColor(Color.widgetAsset("inkMuted", mode: mode))
                 }
                 Spacer()
                 Text(headerDate)
                     .font(WidgetFont.serif(12))
-                    .foregroundColor(Color("inkMuted"))
+                    .foregroundColor(Color.widgetAsset("inkMuted", mode: mode))
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
                     .layoutPriority(1)
@@ -170,12 +185,12 @@ struct WidgetEntryView: View {
                 Spacer()
                 Text("最初のひと言を書いてみよう")
                     .font(WidgetFont.serif(14))
-                    .foregroundColor(Color("inkMuted"))
+                    .foregroundColor(Color.widgetAsset("inkMuted", mode: mode))
                     .frame(maxWidth: .infinity, alignment: .center)
                 Spacer()
             } else {
                 Rectangle()
-                    .fill(Color("paperRule"))
+                    .fill(Color.widgetAsset("paperRule", mode: mode))
                     .frame(height: 0.5)
                 ForEach(displayEntries) { item in
                     HStack(alignment: .center, spacing: 12) {
@@ -186,14 +201,14 @@ struct WidgetEntryView: View {
                             .frame(width: 64, alignment: .leading)
                         Text(item.word)
                             .font(WidgetFont.serif(15))
-                            .foregroundColor(Color("inkPrimary"))
+                            .foregroundColor(Color.widgetAsset("inkPrimary", mode: mode))
                             .lineLimit(1)
                             .truncationMode(.tail)
                         Spacer(minLength: 0)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     Rectangle()
-                        .fill(Color("paperRule"))
+                        .fill(Color.widgetAsset("paperRule", mode: mode))
                         .frame(height: 0.5)
                 }
             }
@@ -210,7 +225,7 @@ struct RecentWordWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             WidgetEntryView(entry: entry)
                 .containerBackground(for: .widget) {
-                    Color("paperBase")
+                    Color.widgetAsset("paperBase", mode: entry.data.themeMode)
                 }
         }
         .configurationDisplayName("最近のひと言")

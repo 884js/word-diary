@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import { useColorScheme } from 'react-native';
+import { syncWidgetTheme } from '@/lib/widgetData';
 import { type ColorScheme, darkColors, lightColors } from './colors';
 
 /**
@@ -64,6 +65,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  // テーマモードが確定 / 変更されたらウィジェットにも伝える。
+  useEffect(() => {
+    if (!ready) return;
+    syncWidgetTheme(mode);
+  }, [mode, ready]);
 
   const setMode = useCallback((next: ThemeMode) => {
     setModeState(next);
