@@ -138,6 +138,10 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
 
   const items = useMemo(() => buildItems(data ?? [], today), [data, today]);
 
+  // TodayComposer が出ない（今日のエントリ済）ときは PromptText とリストが
+  // 直接接して窮屈なので、その分のスペーサを足す。
+  const hasTodayEntry = (data ?? []).some((e) => e.date === today);
+
   // 先頭が SectionDivider のときは divider 自体が上端線を兼ねるので topRule は出さない。
   const showTopRule =
     items.length > 0 &&
@@ -158,6 +162,7 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
           <UpdateBanner />
           <PromptText />
           <TodayComposer />
+          {hasTodayEntry ? <View style={styles.headerExtraSpacer} /> : null}
           {showTopRule ? (
             <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
           ) : null}
@@ -248,6 +253,9 @@ const styles = StyleSheet.create({
   },
   topRule: {
     height: StyleSheet.hairlineWidth,
+  },
+  headerExtraSpacer: {
+    height: spacing.lg,
   },
   loading: {
     flex: 1,
