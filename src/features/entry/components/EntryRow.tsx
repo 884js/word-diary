@@ -1,6 +1,11 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
+import {
+  holidayName,
+  shortDate,
+  type WeekdayKind,
+  weekdayKind,
+} from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
@@ -28,12 +33,24 @@ function weekdayColor(kind: WeekdayKind, c: ColorScheme): string {
 function EntryRowInner({ date, word, onPress, hideBottomBorder }: Props) {
   const c = useColors();
   const kind = weekdayKind(date);
+  const dateColor = weekdayColor(kind, c);
+  const holiday = holidayName(date);
 
   const content = (
     <>
-      <Text style={[styles.date, { color: weekdayColor(kind, c) }]}>
-        {shortDate(date)}
-      </Text>
+      <View style={styles.dateColumn}>
+        <Text style={[styles.date, { color: dateColor }]}>
+          {shortDate(date)}
+        </Text>
+        {holiday ? (
+          <Text
+            style={[styles.holiday, { color: dateColor }]}
+            numberOfLines={1}
+          >
+            {holiday}
+          </Text>
+        ) : null}
+      </View>
       <Text style={[styles.word, { color: c.ink.primary }]} numberOfLines={2}>
         {word}
       </Text>
@@ -73,11 +90,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  date: {
+  dateColumn: {
     width: 76,
+  },
+  date: {
     fontFamily: 'NotoSerifJP',
     fontSize: 15,
     fontVariant: ['tabular-nums'],
+  },
+  holiday: {
+    fontFamily: 'NotoSerifJP',
+    fontSize: 10,
+    marginTop: 2,
   },
   word: {
     flex: 1,

@@ -1,6 +1,11 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { shortDate, type WeekdayKind, weekdayKind } from '@/lib/dateUtils';
+import {
+  holidayName,
+  shortDate,
+  type WeekdayKind,
+  weekdayKind,
+} from '@/lib/dateUtils';
 import type { ColorScheme } from '@/theme/colors';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
@@ -26,6 +31,8 @@ function mutedWeekdayColor(kind: WeekdayKind, c: ColorScheme): string {
 function EmptyEntryRowInner({ date, onPress, hideBottomBorder }: Props) {
   const c = useColors();
   const kind = weekdayKind(date);
+  const dateColor = mutedWeekdayColor(kind, c);
+  const holiday = holidayName(date);
   const borderStyle = hideBottomBorder
     ? { borderBottomWidth: 0 }
     : { borderBottomColor: c.paper.rule };
@@ -39,9 +46,19 @@ function EmptyEntryRowInner({ date, onPress, hideBottomBorder }: Props) {
         pressed && { backgroundColor: c.paper.deep },
       ]}
     >
-      <Text style={[styles.date, { color: mutedWeekdayColor(kind, c) }]}>
-        {shortDate(date)}
-      </Text>
+      <View style={styles.dateColumn}>
+        <Text style={[styles.date, { color: dateColor }]}>
+          {shortDate(date)}
+        </Text>
+        {holiday ? (
+          <Text
+            style={[styles.holiday, { color: dateColor }]}
+            numberOfLines={1}
+          >
+            {holiday}
+          </Text>
+        ) : null}
+      </View>
       {/* 記入済み行と行高を揃えるための空スロット */}
       <View style={styles.wordSlot} />
     </Pressable>
@@ -58,11 +75,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  date: {
+  dateColumn: {
     width: 76,
+  },
+  date: {
     fontFamily: 'NotoSerifJP',
     fontSize: 15,
     fontVariant: ['tabular-nums'],
+  },
+  holiday: {
+    fontFamily: 'NotoSerifJP',
+    fontSize: 10,
+    marginTop: 2,
   },
   wordSlot: {
     flex: 1,
