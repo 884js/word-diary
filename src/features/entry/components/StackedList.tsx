@@ -6,6 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { UpdateBanner } from '@/features/update/components/UpdateBanner';
 import type { Entry } from '@/lib/database/schema';
 import {
   enumerateDates,
@@ -17,7 +18,6 @@ import {
 import { useToday } from '@/lib/hooks/useToday';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
-import { UpdateBanner } from '@/features/update/components/UpdateBanner';
 import { useEntries } from '../hooks/useEntries';
 import { EmptyEntryRow } from './EmptyEntryRow';
 import { EntryRow } from './EntryRow';
