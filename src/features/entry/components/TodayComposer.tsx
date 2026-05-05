@@ -151,11 +151,9 @@ const MAX_LENGTH = 14;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.md,
     paddingBottom: spacing.sm,
   },
   inputRow: {
-    marginTop: spacing.lg,
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth * 2,
   },

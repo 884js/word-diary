@@ -17,11 +17,14 @@ import {
 import { useToday } from '@/lib/hooks/useToday';
 import { useColors } from '@/theme/ThemeContext';
 import { spacing } from '@/theme/tokens';
+import { UpdateBanner } from '@/features/update/components/UpdateBanner';
 import { useEntries } from '../hooks/useEntries';
 import { EmptyEntryRow } from './EmptyEntryRow';
 import { EntryRow } from './EntryRow';
 import { InlineEntryEditor } from './InlineEntryEditor';
+import { PromptText } from './PromptText';
 import { SectionDivider } from './SectionDivider';
+import { TodayComposer } from './TodayComposer';
 
 type Item =
   | { kind: 'entry'; entry: Entry }
@@ -135,27 +138,11 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
 
   const items = useMemo(() => buildItems(data ?? [], today), [data, today]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={c.ink.muted} />
-      </View>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <View style={styles.empty}>
-        <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
-          上の欄に今日のひと言を記録すると、{'\n'}ここに積み上がっていきます。
-        </Text>
-      </View>
-    );
-  }
-
   // 先頭が SectionDivider のときは divider 自体が上端線を兼ねるので topRule は出さない。
   const showTopRule =
-    items[0].kind !== 'divider-month' && items[0].kind !== 'divider-year';
+    items.length > 0 &&
+    items[0].kind !== 'divider-month' &&
+    items[0].kind !== 'divider-year';
 
   return (
     <FlatList
@@ -167,9 +154,28 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
       showsVerticalScrollIndicator={false}
       automaticallyAdjustKeyboardInsets
       ListHeaderComponent={
-        showTopRule ? (
-          <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
-        ) : null
+        <>
+          <UpdateBanner />
+          <PromptText />
+          <TodayComposer />
+          {showTopRule ? (
+            <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
+          ) : null}
+        </>
+      }
+      ListEmptyComponent={
+        isLoading ? (
+          <View style={styles.loading}>
+            <ActivityIndicator color={c.ink.muted} />
+          </View>
+        ) : (
+          <View style={styles.empty}>
+            <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
+              上の欄に今日のひと言を記録すると、{'\n'}
+              ここに積み上がっていきます。
+            </Text>
+          </View>
+        )
       }
       renderItem={({ item, index }) => {
         if (item.kind === 'divider-year') {
@@ -238,7 +244,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingTop: spacing['3xl'],
     paddingBottom: spacing['4xl'],
   },
   topRule: {

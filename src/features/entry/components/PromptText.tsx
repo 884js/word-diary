@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xs,
+    paddingBottom: spacing['2xl'],
   },
   prompt: {
     fontFamily: 'NotoSerifJP',
