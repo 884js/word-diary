@@ -2,7 +2,7 @@
 name: testflight
 description: |
   Build iOS app with EAS Build and distribute to TestFlight using the testflight profile in eas.json.
-  Also handles App Store Connect metadata sync (version / releaseNotes / eas metadata:push).
+  バージョン bump とリリースノートの下書き生成までを担当する。`store.config.json` を App Store Connect に push したい場合は別スキル `/store-config` を使う。
   Use when: (1) /testflight command (2) user says「TestFlightに出して」「TF配信」「テストフライト」「iOS配信」「ベータ配信」or similar phrases about TestFlight deployment
 ---
 
@@ -108,19 +108,9 @@ AskUserQuestion で選択肢を提示する:
 
 ビルド完了は待たない。
 
-### 7. メタデータ push 確認
+### 7. メタデータ push の案内
 
-AskUserQuestion で `eas metadata:push` を実行するか確認する:
-
-| 選択肢 | 動作 |
-|--------|------|
-| push する | `eas metadata:push --profile testflight --non-interactive` を実行。成功したら App Store Connect のリンクも案内する |
-| 後で自分で push する | 何もせずスキップ |
-
-注意:
-
-- バージョン bump なし & releaseNotes 更新なしのケースでも聞く（事前に画面で編集したものを push したいケースがあるため）
-- `store.config.json` に `review` セクションや `screenshots` フィールドが残っていると上書き事故が起きるので、push 前に `review` と `screenshots` が削除されていることを軽く確認する（あればユーザーに警告）
+`store.config.json` を App Store Connect に反映したい場合は `/store-config` を別途実行するよう案内する。このスキルでは push しない。
 
 ### 8. ビルド残数表示
 
