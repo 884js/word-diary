@@ -47,6 +47,17 @@ const PROMPT_VARIATIONS = [
   'ささやかなしあわせを、ひと言。',
   'うれしかったこと、ひとつ。',
   '今日いちばんを、ひと言。',
+  // 一日の断片
+  '今日のことを、少しだけ。',
+  '今日の余韻を、ひと言。',
+  '今日の手触りを。',
+  '今日の気分を、ひと言。',
+  '今日の景色を、ひとつ。',
+  '帰り道のことを。',
+  '食べたもの、ひとつ。',
+  '空の色を、ひと言。',
+  '何気ないことを、ひとつ。',
+  '心が動いたことを。',
   // 振り返り
   '今日を、ふりかえる。',
   '今日を、思い返して。',
@@ -60,6 +71,11 @@ const PROMPT_VARIATIONS = [
   '明日の自分への、置き手紙。',
   'あとで読みたくなる、ひと言。',
   '明日の自分に、ひと言。',
+  'あとで思い出せるように。',
+  '読み返す日のために。',
+  '今日の終わりに、ひと言。',
+  '小さく残しておく。',
+  '静かに、書き残す。',
 ] as const;
 
 /**
@@ -88,7 +104,7 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xs,
-    paddingBottom: spacing['2xl'],
+    paddingBottom: spacing.xl,
   },
   prompt: {
     fontFamily: 'NotoSerifJP',

@@ -149,102 +149,109 @@ export function StackedList({ editingDate, onStartEdit, onEndEdit }: Props) {
     items[0].kind !== 'divider-year';
 
   return (
-    <FlatList
-      style={styles.list}
-      contentContainerStyle={styles.listContent}
-      data={items}
-      keyExtractor={keyForItem}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-      automaticallyAdjustKeyboardInsets
-      ListHeaderComponent={
-        <>
-          <UpdateBanner />
-          <PromptText />
-          <TodayComposer />
-          {hasTodayEntry ? <View style={styles.headerExtraSpacer} /> : null}
-          {showTopRule ? (
-            <View style={[styles.topRule, { backgroundColor: c.paper.rule }]} />
-          ) : null}
-        </>
-      }
-      ListEmptyComponent={
-        isLoading ? (
-          <View style={styles.loading}>
-            <ActivityIndicator color={c.ink.muted} />
-          </View>
-        ) : (
-          <View style={styles.empty}>
-            <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
-              上の欄に今日のひと言を記録すると、{'\n'}
-              ここに積み上がっていきます。
-            </Text>
-          </View>
-        )
-      }
-      renderItem={({ item, index }) => {
-        if (item.kind === 'divider-year') {
-          return (
-            <SectionDivider
-              label={item.label}
-              subLabel={`書いた日数 ${item.count}日`}
-              variant="year"
-            />
-          );
+    <View style={styles.container}>
+      <UpdateBanner />
+      <PromptText />
+      <FlatList
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        data={items}
+        keyExtractor={keyForItem}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets
+        ListHeaderComponent={
+          <>
+            <TodayComposer />
+            {hasTodayEntry ? <View style={styles.headerExtraSpacer} /> : null}
+            {showTopRule ? (
+              <View
+                style={[styles.topRule, { backgroundColor: c.paper.rule }]}
+              />
+            ) : null}
+          </>
         }
-        if (item.kind === 'divider-month') {
-          return (
-            <SectionDivider
-              label={item.label}
-              subLabel={`書いた日数 ${item.count}日`}
-              variant="month"
-            />
-          );
+        ListEmptyComponent={
+          isLoading ? (
+            <View style={styles.loading}>
+              <ActivityIndicator color={c.ink.muted} />
+            </View>
+          ) : (
+            <View style={styles.empty}>
+              <Text style={[styles.emptyBody, { color: c.ink.muted }]}>
+                上の欄に今日のひと言を記録すると、{'\n'}
+                ここに積み上がっていきます。
+              </Text>
+            </View>
+          )
         }
-        // entry / empty は編集中かどうかで描画を切り替える
-        const itemDate = item.kind === 'entry' ? item.entry.date : item.date;
-        const existingWord =
-          item.kind === 'entry' ? item.entry.word : undefined;
-        // 直下が月/年の divider の場合、行の下罫線は divider に任せて省く
-        const next = items[index + 1];
-        const hideBottomBorder =
-          next?.kind === 'divider-month' || next?.kind === 'divider-year';
+        renderItem={({ item, index }) => {
+          if (item.kind === 'divider-year') {
+            return (
+              <SectionDivider
+                label={item.label}
+                subLabel={`書いた日数 ${item.count}日`}
+                variant="year"
+              />
+            );
+          }
+          if (item.kind === 'divider-month') {
+            return (
+              <SectionDivider
+                label={item.label}
+                subLabel={`書いた日数 ${item.count}日`}
+                variant="month"
+              />
+            );
+          }
+          // entry / empty は編集中かどうかで描画を切り替える
+          const itemDate = item.kind === 'entry' ? item.entry.date : item.date;
+          const existingWord =
+            item.kind === 'entry' ? item.entry.word : undefined;
+          // 直下が月/年の divider の場合、行の下罫線は divider に任せて省く
+          const next = items[index + 1];
+          const hideBottomBorder =
+            next?.kind === 'divider-month' || next?.kind === 'divider-year';
 
-        if (editingDate === itemDate) {
+          if (editingDate === itemDate) {
+            return (
+              <InlineEntryEditor
+                date={itemDate}
+                initialValue={existingWord}
+                onComplete={onEndEdit}
+                hideBottomBorder={hideBottomBorder}
+              />
+            );
+          }
+
+          if (item.kind === 'entry') {
+            return (
+              <EntryRow
+                date={item.entry.date}
+                word={item.entry.word}
+                onPress={() => onStartEdit(item.entry.date)}
+                hideBottomBorder={hideBottomBorder}
+              />
+            );
+          }
+
           return (
-            <InlineEntryEditor
-              date={itemDate}
-              initialValue={existingWord}
-              onComplete={onEndEdit}
+            <EmptyEntryRow
+              date={item.date}
+              onPress={() => onStartEdit(item.date)}
               hideBottomBorder={hideBottomBorder}
             />
           );
-        }
-
-        if (item.kind === 'entry') {
-          return (
-            <EntryRow
-              date={item.entry.date}
-              word={item.entry.word}
-              onPress={() => onStartEdit(item.entry.date)}
-              hideBottomBorder={hideBottomBorder}
-            />
-          );
-        }
-
-        return (
-          <EmptyEntryRow
-            date={item.date}
-            onPress={() => onStartEdit(item.date)}
-            hideBottomBorder={hideBottomBorder}
-          />
-        );
-      }}
-    />
+        }}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   list: {
     flex: 1,
   },
