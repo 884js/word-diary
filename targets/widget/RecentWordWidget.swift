@@ -13,9 +13,12 @@ struct DiaryEntry: Codable, Identifiable {
 
 struct WidgetData: Codable {
     let totalCount: Int
-    let today: String  // "YYYY-MM-DD"
-    let todayKind: String  // "weekday" | "saturday" | "sunday" | "holiday"
+    var today: String  // "YYYY-MM-DD"
+    var todayKind: String  // "weekday" | "saturday" | "sunday" | "holiday"
     let entries: [DiaryEntry]
+    /// 今日から HOLIDAY_WINDOW_DAYS 日先までに含まれる祝日 dateKey。
+    /// Extension からは holiday-jp ライブラリが使えないので、アプリ側で計算して渡す。
+    var upcomingHolidays: [String] = []
     /// アプリ本体で選択されたテーマモード ('system' / 'light' / 'dark')。
     /// JSON ペイロードには含めず、別キーから読み込んだ値を後付けする。
     var themeMode: String = "system"
@@ -25,6 +28,7 @@ struct WidgetData: Codable {
         case today
         case todayKind
         case entries
+        case upcomingHolidays
     }
 
     static var placeholder: WidgetData {
@@ -40,12 +44,29 @@ struct WidgetData: Codable {
                 DiaryEntry(date: dateKey(daysBack: 4), word: "早起きできた", kind: "weekday"),
                 DiaryEntry(date: dateKey(daysBack: 5), word: "新しい靴を履いた", kind: "weekday"),
                 DiaryEntry(date: dateKey(daysBack: 6), word: "夕焼けがきれい", kind: "weekday"),
-            ]
+            ],
+            upcomingHolidays: []
         )
     }
 
     static var empty: WidgetData {
-        WidgetData(totalCount: 0, today: todayKey(), todayKind: "weekday", entries: [])
+        WidgetData(totalCount: 0, today: todayKey(), todayKind: "weekday", entries: [], upcomingHolidays: [])
+    }
+}
+
+extension WidgetData {
+    /// upcomingHolidays は後から足したフィールド。アプリ更新直後など、旧バージョンが
+    /// 書いた payload（このキーなし）を読むことがあるため、ここだけ decodeIfPresent で
+    /// フォールバックして decode 全体が失敗するのを防ぐ。
+    /// init(from:) を extension に置くことでメンバーワイズ init は維持される。
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        totalCount = try container.decode(Int.self, forKey: .totalCount)
+        today = try container.decode(String.self, forKey: .today)
+        todayKind = try container.decode(String.self, forKey: .todayKind)
+        entries = try container.decode([DiaryEntry].self, forKey: .entries)
+        upcomingHolidays =
+            try container.decodeIfPresent([String].self, forKey: .upcomingHolidays) ?? []
     }
 }
 
@@ -54,6 +75,8 @@ private let widgetDataKey = "widgetData"
 
 private func todayKey() -> String {
     let formatter = DateFormatter()
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.dateFormat = "yyyy-MM-dd"
     formatter.timeZone = TimeZone.current
     return formatter.string(from: Date())
@@ -61,6 +84,8 @@ private func todayKey() -> String {
 
 private func dateKey(daysBack: Int) -> String {
     let formatter = DateFormatter()
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.dateFormat = "yyyy-MM-dd"
     formatter.timeZone = TimeZone.current
     let date = Calendar.current.date(byAdding: .day, value: -daysBack, to: Date())!
@@ -81,6 +106,27 @@ private func loadWidgetData() -> WidgetData {
     return data
 }
 
+/// 端末時刻から today キーと曜日種別を計算する。
+/// JS 側の値はアプリ未起動の間に古くなるので、レンダリング時に Swift 側で上書きする。
+/// 祝日は holidays（アプリ側が事前計算した直近 14 日ぶん）に含まれるか判定する。
+private func computeTodayKey(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.calendar = Calendar(identifier: .gregorian)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd"
+    formatter.timeZone = TimeZone.current
+    return formatter.string(from: date)
+}
+
+private func computeTodayKind(_ date: Date, holidays: [String]) -> String {
+    let key = computeTodayKey(date)
+    if holidays.contains(key) { return "holiday" }
+    let weekday = Calendar.current.component(.weekday, from: date)
+    if weekday == 1 { return "sunday" }
+    if weekday == 7 { return "saturday" }
+    return "weekday"
+}
+
 // MARK: - Timeline Provider
 
 struct Provider: TimelineProvider {
@@ -89,18 +135,36 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (WidgetEntry) -> Void) {
-        let data = context.isPreview ? WidgetData.placeholder : loadWidgetData()
-        completion(WidgetEntry(date: Date(), data: data))
+        var data = context.isPreview ? WidgetData.placeholder : loadWidgetData()
+        let now = Date()
+        data.today = computeTodayKey(now)
+        data.todayKind = computeTodayKind(now, holidays: data.upcomingHolidays)
+        completion(WidgetEntry(date: now, data: data))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<WidgetEntry>) -> Void) {
-        let data = loadWidgetData()
+        let baseData = loadWidgetData()
         let now = Date()
         let calendar = Calendar.current
-        // 翌日 00:00 にリロード(日付が変わったらヘッダーを更新するため)
-        let tomorrow = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: now)!)
-        let entry = WidgetEntry(date: now, data: data)
-        completion(Timeline(entries: [entry], policy: .after(tomorrow)))
+        let nextMidnight = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: now)!)
+
+        // 今のエントリ: today=今日 → 今日のひと言があれば表示される
+        var nowData = baseData
+        nowData.today = computeTodayKey(now)
+        nowData.todayKind = computeTodayKind(now, holidays: baseData.upcomingHolidays)
+
+        // 翌 0:00 のエントリ: today=翌日 → TodayWordWidget は誘導文に切り替わり、
+        // RecentWordWidget はヘッダ日付が前進する。
+        var nextData = baseData
+        nextData.today = computeTodayKey(nextMidnight)
+        nextData.todayKind = computeTodayKind(nextMidnight, holidays: baseData.upcomingHolidays)
+
+        let entries = [
+            WidgetEntry(date: now, data: nowData),
+            WidgetEntry(date: nextMidnight, data: nextData),
+        ]
+        // 0:00 を過ぎたら getTimeline を再実行して最新の entries を取り直す
+        completion(Timeline(entries: entries, policy: .after(nextMidnight)))
     }
 }
 

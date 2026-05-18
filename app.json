@@ -14,15 +14,11 @@
       "icon": "./assets/icon.png",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "ja",
-        "CFBundleLocalizations": [
-          "ja"
-        ],
+        "CFBundleLocalizations": ["ja"],
         "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.com.uki884.worddiary"
-        ]
+        "com.apple.security.application-groups": ["group.com.uki884.worddiary"]
       }
     },
     "android": {

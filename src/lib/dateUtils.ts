@@ -1,5 +1,5 @@
 import holidayJp from '@holiday-jp/holiday_jp';
-import { eachDayOfInterval, format, getDay, parseISO } from 'date-fns';
+import { addDays, eachDayOfInterval, format, getDay, parseISO } from 'date-fns';
 
 /**
  * ローカル日付をYYYY-MM-DD形式に。
@@ -39,6 +39,19 @@ export function weekdayKind(dateKey: string): WeekdayKind {
  */
 export function isHoliday(dateKey: string): boolean {
   return holidayJp.isHoliday(dateKey);
+}
+
+/**
+ * 起点日から days 日間に含まれる祝日 dateKey を列挙する。
+ * Swift 側 (Widget Extension) は祝日判定ライブラリを持たないので、
+ * アプリ側で先回りして書き出してウィジェットに渡すために使う。
+ */
+export function upcomingHolidays(fromKey: string, days: number): string[] {
+  const start = parseISO(fromKey);
+  const end = addDays(start, days - 1);
+  return eachDayOfInterval({ start, end })
+    .map((d) => toDateKey(d))
+    .filter(isHoliday);
 }
 
 /**

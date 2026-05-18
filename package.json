@@ -7,7 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "prebuild:android": "expo prebuild --platform android",
-    "prebuild:ios": "expo prebuild --platform ios",
+    "prebuild:ios": "expo prebuild --platform ios --clean",
     "lint": "biome check --write",
     "format": "biome format --write",
     "fix": "biome check --write",
